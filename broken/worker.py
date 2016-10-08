@@ -53,18 +53,19 @@ class Worker:
 
                 for link in found_links:
                     if link.startswith(self.base_url):  # Only allow links that stem from the base url
+                        store.parent_links[link] = url  # Keep track of the parent of the found link
                         yield store.queue.put(link)
 
             except httpclient.HTTPError as e:
                 if e.code == 404:
                     print("404,", url)
+                    store.add_broken_link(url)
 
-                    # TODO: Figure out how to keep track of the parent webpage
-                    store.pages_with_broken_links.add(url)
             except Exception as e:
                 print("Exception: {0}, {1}".format(e, url))
 
             finally:
+                del store.parent_links[url]  # Remove entry in parent link to save space
                 store.processing.remove(url)
                 store.crawled.add(url)
 

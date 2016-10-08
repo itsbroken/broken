@@ -31,6 +31,9 @@ def main():
                                           len(store.crawled),
                                           store.get_num_broken_links()))
 
+    for broken_link, parent_link in store.broken_links.items():
+        print("{0} linked from: {1}".format(broken_link, parent_link))
+
 
 if __name__ == '__main__':
     io_loop = ioloop.IOLoop.current()

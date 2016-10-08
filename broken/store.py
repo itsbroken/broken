@@ -5,13 +5,15 @@ from tornado import queues
 queue = queues.Queue()
 processing = set()
 crawled = set()
-# pages_with_broken_links = {}
-pages_with_broken_links = set()
+broken_links = {}
+parent_links = {}
 
-# TODO: Replace this method when we know how to keep track of the parent webpage
+
 def get_num_broken_links():
-    return len(pages_with_broken_links)
-    # all_broken_links = set()
-    # for page, broken_links in pages_with_broken_links.items():
-    #     all_broken_links.union(broken_links)
-    # return len(all_broken_links)
+    return len(broken_links)
+
+
+def add_broken_link(link):
+    if link not in broken_links:
+        broken_links[link] = set()
+    broken_links[link].add(parent_links[link])
