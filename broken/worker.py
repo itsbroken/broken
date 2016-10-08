@@ -1,5 +1,3 @@
-
-
 import random
 from tornado import gen, httpclient
 import store
