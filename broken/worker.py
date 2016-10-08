@@ -63,7 +63,8 @@ class Worker:
                 print("Exception: {0}, {1}".format(e, url))
 
             finally:
-                del store.parent_links[url]  # Remove entry in parent link to save space
+                if url != self.base_url:
+                    del store.parent_links[url]  # Remove entry in parent link to save space
                 store.processing.remove(url)
                 store.crawled.add(url)
 
