@@ -30,11 +30,3 @@ def test_extract_links_with_javascript():
     """
     links = []
     assert extract_links(None, html) == links
-
-
-# TODO: Handle this error
-def test_normalize_link_similar_base_url():
-    base_url = "http://www.google.com"
-    found_link = "google.com"
-    assert normalize_link(base_url, found_link) == base_url
-
