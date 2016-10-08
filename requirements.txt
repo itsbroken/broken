@@ -1,0 +1,5 @@
+colorama==0.3.7
+py==1.4.31
+pytest==3.0.3
+requests==2.11.1
+tornado==4.4.2
