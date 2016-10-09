@@ -52,6 +52,8 @@ class Worker:
                 for link in found_links:
                     if link.startswith(self.base_url):  # Only allow links that stem from the base url
                         store.parent_links[link] = url  # Keep track of the parent of the found link
+                        if link in store.broken_links:  # Add links that lead to this broken link
+                            store.broken_links[link].add(url)
                         yield store.queue.put(link)
 
             except httpclient.HTTPError as e:
