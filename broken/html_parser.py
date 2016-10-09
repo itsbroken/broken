@@ -7,7 +7,7 @@ import re
 
 def extract_links(url, response_body):
     """
-    Extract all href links from the response body
+    Extract all links from the response body
 
     :param url: URL of the response
     :param response_body: body of the HTTP response
@@ -17,13 +17,24 @@ def extract_links(url, response_body):
         return []
 
     found_links = []
+    extract_href_links(found_links, url, response_body)
+    extract_img_src_links(found_links, url, response_body)
+
+    return found_links
+
+
+def extract_href_links(found_links, url, response_body):
     for found_link in BeautifulSoup(response_body, "html.parser", parse_only=SoupStrainer('a', href=True)):
         link = found_link["href"].strip()
         if re.match(r'javascript:|mailto:', link):
             continue
         found_links.append(normalize_url(url, link))
 
-    return found_links
+
+def extract_img_src_links(found_links, url, response_body):
+    for found_img in BeautifulSoup(response_body, "html.parser", parse_only=SoupStrainer('img', src=True)):
+        img_src = found_img["src"].strip()
+        found_links.append(normalize_url(url, img_src))
 
 
 def normalize_url(parent_link, found_link):
