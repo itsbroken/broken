@@ -20,7 +20,7 @@ class Worker:
         Called from the constructor. Waits a sort moment before processing a url from the queue
         """
         while True:
-            yield gen.sleep(random.uniform(0.01, 0.1))  # Random sleep time between 10ms to 100ms
+            yield gen.sleep(utils.get_random_delay())
             yield self.process_url()
 
     @gen.coroutine
@@ -74,6 +74,11 @@ class Worker:
             store.queue.task_done()
 
     @gen.coroutine
-    def get_http_response(self, url):
-        response = yield httpclient.AsyncHTTPClient().fetch(url)
-        return response.body
+    def get_http_response_body(self, url):
+        head_response = yield httpclient.AsyncHTTPClient().fetch(url, method='HEAD')
+
+        if utils.is_supported_content_type(head_response.headers["Content-Type"]):
+            response = yield httpclient.AsyncHTTPClient().fetch(url, method='GET')
+            return response.body
+        else:
+            return None
