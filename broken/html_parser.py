@@ -11,12 +11,12 @@ def extract_links(url, response_body):
 
     :param url: URL of the response
     :param response_body: body of the HTTP response
-    :return: list of links that were found
+    :return: set of links that were found
     """
     if response_body is None:
         return []
 
-    found_links = []
+    found_links = set()
     extract_href_links(found_links, url, response_body)
     extract_img_src_links(found_links, url, response_body)
 
@@ -28,13 +28,13 @@ def extract_href_links(found_links, url, response_body):
         link = found_link["href"].strip()
         if re.match(r'javascript:|mailto:', link):
             continue
-        found_links.append(normalize_url(url, link))
+        found_links.add(normalize_url(url, link))
 
 
 def extract_img_src_links(found_links, url, response_body):
     for found_img in BeautifulSoup(response_body, "html.parser", parse_only=SoupStrainer('img', src=True)):
         img_src = found_img["src"].strip()
-        found_links.append(normalize_url(url, img_src))
+        found_links.add(normalize_url(url, img_src))
 
 
 def normalize_url(parent_link, found_link):

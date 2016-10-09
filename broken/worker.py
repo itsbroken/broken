@@ -1,6 +1,6 @@
-import random
 from tornado import gen, httpclient
 import store
+import utils
 import html_parser
 
 
@@ -43,8 +43,8 @@ class Worker:
 
             # Get response from URL
             try:
-                response_body = yield self.get_http_response(url)
                 print("Received {}".format(url))
+                response_body = yield self.get_http_response_body(url)
 
                 # Extract links
                 found_links = html_parser.extract_links(url, response_body)
