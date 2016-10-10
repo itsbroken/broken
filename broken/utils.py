@@ -1,5 +1,6 @@
 import random
 import re
+from urllib.parse import urlparse
 
 
 def get_random_delay(min_time=0.01, max_time=0.1):
@@ -24,3 +25,10 @@ def is_supported_content_type(raw_content_type):
     if re.match(r'text/', raw_content_type):
         return True
     return False
+
+
+def is_valid_url(url):
+    if not re.match(r'https?://', url):
+        url = "http://" + url
+    parsed = urlparse(url)
+    return parsed.netloc
