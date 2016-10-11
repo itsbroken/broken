@@ -1,0 +1,245 @@
+/* Base Styles from skeleton css
+–––––––––––––––––––––––––––––––––––––––––––––––––– */
+/* NOTE
+html is set to 62.5% so that all the REM measurements throughout Skeleton
+are based on 10px sizing. So basically 1.5rem = 15px :) */
+html {
+  font-size: 62.5%; }
+body {
+  font-size: 1.5em; /* currently ems cause chrome bug misinterpreting rems on body element */
+  font-weight: 400;
+  line-height: 1.5;
+  font-family: "Asap", Trebuchet, "HelveticaNeue", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  color: #666; }
+
+p {
+  margin-top: 0;
+  margin-bottom: 0.6rem;
+  letter-spacing: 0.2px;
+}
+
+input[type="text"] {
+  height: 38px;
+  padding: 6px 10px; /* The 6px vertically centers text on FF, ignored by Webkit */
+  background-color: #fff;
+  border: 1px solid #D1D1D1;
+  border-radius: 4px;
+  box-shadow: none;
+  box-sizing: border-box;
+  &:focus {
+    border: 1px solid #41D3BD;
+    outline: 0;
+  }
+}
+/* –––––––––––––––––––––––––––––––––––––––––––––––––– */
+
+$max-width: 700px;
+
+$grey: #555;
+$light-grey: lighten($grey, 10%);
+$lightest-grey: lighten($grey, 20%);
+$border-color: #D1D1D1;
+
+%centered-main-column {
+  max-width: 0.9 * $max-width;
+  width: 90vw;
+}
+
+html {
+  background-color: #fafafa;
+}
+
+.hidden {
+  display: none !important;
+}
+
+#main-container {
+  padding-top: 20vh;
+  margin: auto;
+  max-width: $max-width;
+  display: flex;
+  flex-flow: column wrap;
+  align-items: center;
+}
+
+.header-broken {
+  font-family: "Montserrat", sans-serif;
+  font-weight: 700; 
+  font-size: 3rem;
+  letter-spacing: 1px;
+  text-align: center;
+  margin-top: 0;
+  margin-bottom: 2rem;
+  color: $grey;
+}
+
+#help-content {
+  font-size: 0.85em;
+  text-align: center;
+  color: $lightest-grey;
+}
+
+form {
+  z-index: 99;
+  margin-bottom: 24px;
+
+  .url-input {
+    @extend %centered-main-column;
+    padding: 20px 38px 20px 20px;
+    margin: 0;
+  }
+
+  .url-submit {
+    $width: 26px;
+    width: $width;
+    height: $width;
+    line-height: $width;
+    text-align: center;
+    cursor: pointer;
+    margin-left: -40px;
+    padding: 0;
+    font-size: 14px;
+    border-radius: 50%;
+    border: none;
+    background-color: transparent;
+    svg {
+      height: $width;
+      width: $width - 10;
+      vertical-align: middle;
+      fill: $lightest-grey;
+    }
+    &:hover {
+      background-color: #eee;
+    }
+    &:focus {
+      outline: none;
+    }
+  }
+}
+
+#crawl-status {
+  @extend %centered-main-column;
+  z-index: 98;
+  display: flex;
+  align-items: center;
+  background-color: white;
+  margin: -32px 0 24px -4px;
+  box-sizing: border-box;
+  border: 1px solid $border-color;
+  border-radius: 4px;
+  padding: 20px 20px 14px;
+  animation: status-slide-in 0.8s;
+}
+
+@keyframes status-slide-in {
+  from {
+    opacity: 0;
+    margin-top: -80px;
+  }
+
+  to {
+    opacity: 1;
+    margin-top: -32px;
+  }
+}
+
+#crawl-summary {
+  display: flex;
+  flex-flow: column wrap;
+    
+  p {
+    font-size: 0.9em;
+    margin: 0;
+  }
+}
+
+.broken-link-data {
+  @extend %centered-main-column;
+  z-index: 1;
+  margin-bottom: 20px;
+  margin-left: -4px;
+  box-sizing: border-box;
+  border-left: 1px solid darken($border-color, 20%);
+  padding: 0 14px;
+  word-break: break-all;
+  animation: slide-in 0.5s;
+
+  .broken-link-url {
+    font-weight: bold;
+    margin-top: -2px;
+    font-size: 14px;
+    line-height: 1.2;
+  }
+  .broken-link-parents {
+    font-size: 12px;
+    p {
+      margin-bottom: 0;
+    }
+    ol {
+      padding-left: 16px;
+      margin: 0;
+    }
+  }
+}
+
+@keyframes slide-in {
+  from {
+    opacity: 0;
+    margin-top: -80px;
+  }
+
+  to {
+    opacity: 1;
+    margin-top: 0;
+  }
+}
+
+#status-icon {
+  margin-right: 15px;
+  svg {
+    vertical-align: middle;
+    height: 20px;
+    width: 20px;
+  }
+}
+
+/* Spinner */
+
+#spinner {
+  height: 15px;
+  width: 15px;
+
+  animation: rotate 0.8s infinite linear;
+  border: 3px solid $light-grey;
+  border-right-color: transparent;
+  border-radius: 50%;
+}
+
+@keyframes rotate {
+  0%    { transform: rotate(0deg); }
+  100%  { transform: rotate(360deg); }
+}
+
+
+/* Tick */
+.tick {
+  stroke: $light-grey;
+  animation: tick-animate 1s;
+}
+
+@keyframes tick-animate {
+  from {
+    stroke-dasharray: 50;
+    stroke-dashoffset: 50;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+
+
+// .drawn + svg .path{
+//     opacity: 1;
+//     stroke-dashoffset: 0;
+// }

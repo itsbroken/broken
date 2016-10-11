@@ -1,19 +1,46 @@
 # Stores the number of urls crawled, pages with their associated broken links, etc
+import zmq
+from zmq.eventloop import ioloop
 from tornado import queues
+import json
+
+ioloop.install()
 
 
-queue = queues.Queue()
-processing = set()
-crawled = set()
-broken_links = {}
-parent_links = {}
+class Store:
+    ctx = zmq.Context.instance()
+    status = ctx.socket(zmq.PUB)
+    status.bind('tcp://127.0.0.1:5556')
 
+    def __init__(self, index):
+        self.index = index
 
-def get_num_broken_links():
-    return len(broken_links)
+        self.queue = queues.Queue()
+        self.processing = set()
+        self.crawled = set()
+        self.broken_links = {}
+        self.parent_links = {}
 
+    def get_num_broken_links(self):
+        return len(self.broken_links)
 
-def add_broken_link(link):
-    if link not in broken_links:
-        broken_links[link] = set()
-    broken_links[link].add(parent_links[link])
+    def add_broken_link(self, link):
+        index = self.get_num_broken_links() + 1
+        parent = self.parent_links[link]
+        self.broken_links[link] = {"index": index, "parents": {parent}}
+        res = [{"index": index, "link": link, "parents": [parent]}]
+        Store.status.send_string(str(self.index) + "," + json.dumps(res))
+
+    def add_parent_for_broken_link(self, broken_link, parent_link):
+        details = self.broken_links[broken_link]
+        details["parents"].add(parent_link)
+        res = [{"index": details["index"], "link": broken_link, "parents": [parent_link]}]
+        Store.status.send_string(str(self.index) + "," + json.dumps(res))
+
+    def get_formatted_broken_links(self):
+        res = []
+        for broken_link, details in self.broken_links.items():
+            index = details["index"]
+            parent_pages = details["parents"]
+            res.append({"index": index, "link": broken_link, "parents": list(parent_pages)})
+        return json.dumps(res)
