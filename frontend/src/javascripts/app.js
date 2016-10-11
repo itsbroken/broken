@@ -70,4 +70,27 @@ window.addEventListener("load", function () {
       "url": document.getElementById("url").value
     }));
   });
+
+  var searchBar = document.getElementById("crawl-status");
+  var stuck = false;
+  var stickPoint = getDistance();
+
+  function getDistance() {
+    return searchBar.offsetTop;
+  }
+
+  window.onscroll = function(e) {
+    var offset = window.pageYOffset;
+    var distance = getDistance() - offset;
+
+    if (!stuck && (distance <= 0)) {
+      stuck = true;
+      searchBar.style.position = 'fixed';
+      searchBar.style.top = '50px';
+    } else if (stuck && (offset < stickPoint)){
+      stuck = false;
+      searchBar.style.position = 'static';
+    }
+  }
+
 });
