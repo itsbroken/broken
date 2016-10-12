@@ -27,6 +27,32 @@ def test_extract_href_links_with_space():
     assert found_links == links
 
 
+def test_extract_href_relative_reference_relative_path():
+    html = """
+    <html>
+    <a href="archives/">Archives</a>
+    </html>
+    """
+
+    links = {"http://www.comp.nus.edu.sg/news/archives/"}
+    found_links = set()
+    extract_href_links(found_links, "http://www.comp.nus.edu.sg/news/", html)
+    assert found_links == links
+
+
+def test_extract_href_relative_reference_absolute_path():
+    html = """
+    <html>
+    <a href="/archives/">Archives</a>
+    </html>
+    """
+
+    links = {"http://www.comp.nus.edu.sg/archives/"}
+    found_links = set()
+    extract_href_links(found_links, "http://www.comp.nus.edu.sg/news/", html)
+    assert found_links == links
+
+
 def test_extract_href_links_with_javascript():
     html = """
     <a href="  javascript:void(0)"></a>
@@ -57,3 +83,5 @@ def test_extract_img_src_links():
     found_links = set()
     extract_img_src_links(found_links, "http://website.com", html)
     assert found_links == img_links
+
+
