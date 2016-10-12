@@ -11,11 +11,23 @@ ws.onmessage = function (event) {
       hide("spinner");
       show("tick");
     }
-  } else if (data.response_type == "update") {
-    var link = data.broken_links[0];
+  } else if (data.response_type == "update_counts") {
+    var numCrawled = data.counts[0];
+    var numBroken = data.counts[1];
+    updateCrawlSummary(numCrawled, numBroken);
+  } else if (data.response_type == "update_links") {
+    var link = data.links[0];
     updateBrokenLinkCard(link);
   }
 };
+
+function updateCrawlSummary(numCrawled, numBroken) {
+  var data = {"numCrawled": numCrawled, "numBroken": numBroken};
+  var summary = document.getElementById('crawl-summary');
+  var template = "<p><b>{{numCrawled}}</b> URLs, <b>{{numBroken}}</b> broken links found</p>";
+  var rendered = Mustache.render(template, data);
+  summary.innerHTML = rendered;
+}
 
 function updateBrokenLinkCard(link) {
   var brokenLinks = document.getElementById('broken-links');

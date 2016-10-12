@@ -3,7 +3,7 @@ from zmq.eventloop import ioloop, zmqstream
 from tornado import websocket, web, ioloop, gen
 from tornado.options import define, options
 import json
-from broken import utils
+from broken import utils, store
 import os.path
 
 zmq.eventloop.ioloop.install()
@@ -70,9 +70,17 @@ class MainWebSocketHandler(websocket.WebSocketHandler):
     def handle_reply(self, stream, data):
         msg = ""
         if stream == self.status_stream:
-            broken_links = json.loads(data[0].decode('utf-8').split(',', 1)[1])
-            msg = {"response_type": "update",
-                   "broken_links": broken_links}
+            status_update = json.loads(data[0].decode('utf-8').split(',', 1)[1])
+            update_type = store.Status(status_update["type"])
+            update_data = status_update["data"]
+
+            if update_type is store.Status.counts:
+                msg = {"response_type": "update_counts", "counts": update_data}
+            elif update_type is store.Status.broken_links:
+                msg = {"response_type": "update_links", "links": update_data}
+            # broken_links = json.loads(data[0].decode('utf-8').split(',', 1)[1])
+            # msg = {"response_type": "update",
+            #        "broken_links": broken_links}
 
         elif stream == self.command_stream:
             broken_links = json.loads(data[0].decode('utf-8'))

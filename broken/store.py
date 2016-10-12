@@ -3,16 +3,29 @@ import zmq
 from zmq.eventloop import ioloop
 from tornado import queues
 import json
+from enum import Enum
 
 ioloop.install()
 
 
+class Status(Enum):
+    counts = 0
+    broken_links = 1
+
+
 class Store:
-    ctx = zmq.Context.instance()
-    status = ctx.socket(zmq.PUB)
-    status.bind('tcp://127.0.0.1:5556')
+    status_socket_created = False
+
+    @classmethod
+    def initialize(cls):
+        if not cls.status_socket_created:
+            ctx = zmq.Context.instance()
+            cls.status = ctx.socket(zmq.PUB)
+            cls.status.bind('tcp://127.0.0.1:5556')
+            cls.status_socket_created = True
 
     def __init__(self, index):
+        Store.initialize()
         self.index = index
 
         self.queue = queues.Queue()
@@ -21,6 +34,12 @@ class Store:
         self.broken_links = {}
         self.parent_links = {}
 
+    def add_crawled(self, link):
+        self.crawled.add(link)
+        res = {"type": Status.counts.value,
+               "data": [len(self.crawled), len(self.broken_links)]}
+        Store.status.send_string(str(self.index) + "," + json.dumps(res))
+
     def get_num_broken_links(self):
         return len(self.broken_links)
 
@@ -28,13 +47,15 @@ class Store:
         index = self.get_num_broken_links() + 1
         parent = self.parent_links[link]
         self.broken_links[link] = {"index": index, "parents": {parent}}
-        res = [{"index": index, "link": link, "parents": [parent]}]
+        res = {"type": Status.broken_links.value,
+               "data": [{"index": index, "link": link, "parents": [parent]}]}
         Store.status.send_string(str(self.index) + "," + json.dumps(res))
 
     def add_parent_for_broken_link(self, broken_link, parent_link):
         details = self.broken_links[broken_link]
         details["parents"].add(parent_link)
-        res = [{"index": details["index"], "link": broken_link, "parents": [parent_link]}]
+        res = {"type": Status.broken_links.value,
+               "data": [{"index": details["index"], "link": broken_link, "parents": [parent_link]}]}
         Store.status.send_string(str(self.index) + "," + json.dumps(res))
 
     def get_formatted_broken_links(self):

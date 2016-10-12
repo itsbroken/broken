@@ -70,7 +70,7 @@ class Worker:
                 if url != self.base_url and url in self.store.parent_links:
                     del self.store.parent_links[url]  # Remove entry in parent link to save space
                 self.store.processing.remove(url)
-                self.store.crawled.add(url)
+                self.store.add_crawled(url)
 
         finally:
             self.store.queue.task_done()
