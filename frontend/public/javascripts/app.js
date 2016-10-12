@@ -72,22 +72,16 @@ window.addEventListener("load", function () {
   });
 
   var searchBar = document.getElementById("crawl-status");
+  var stickPoint = form.offsetTop;
   var stuck = false;
-  var stickPoint = getDistance();
-
-  function getDistance() {
-    return searchBar.offsetTop;
-  }
-
+  
   window.onscroll = function(e) {
     var offset = window.pageYOffset;
-    var distance = getDistance() - offset;
-
-    if (!stuck && (distance <= 0)) {
+    if (!stuck && (offset >= stickPoint)) {
       stuck = true;
       searchBar.style.position = 'fixed';
       searchBar.style.top = '50px';
-    } else if (stuck && (offset < stickPoint)){
+    } else if (stuck && (offset < stickPoint)) {
       stuck = false;
       searchBar.style.position = 'static';
     }
