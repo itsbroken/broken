@@ -22,6 +22,7 @@ class Application(web.Application):
             # cookie_secret="__TODO:_GENERATE_YOUR_OWN_RANDOM_VALUE_HERE__",
             template_path=os.path.join(os.path.dirname(__file__), "../frontend/public/"),
             static_path=os.path.join(os.path.dirname(__file__), "../frontend/public/"),
+            compress_response=True,
             # xsrf_cookies=True,
         )
         super(Application, self).__init__(handlers, **settings)
