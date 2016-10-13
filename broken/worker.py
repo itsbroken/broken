@@ -44,11 +44,11 @@ class Worker:
 
             # Get response from URL
             try:
-                response_body = yield self.get_http_response_body(url)
+                response_body, effective_url = yield self.get_http_response_body_and_effective_url(url)
                 # print("Received {}".format(url))
 
                 # Extract links
-                found_links = html_parser.extract_links(url, response_body)
+                found_links = html_parser.extract_links(effective_url, response_body)
 
                 for link in found_links:
                     if link.startswith(self.base_url):  # Only allow links that stem from the base url
@@ -76,11 +76,11 @@ class Worker:
             self.store.queue.task_done()
 
     @gen.coroutine
-    def get_http_response_body(self, url):
+    def get_http_response_body_and_effective_url(self, url):
         head_response = yield httpclient.AsyncHTTPClient().fetch(url, method='HEAD')
 
         if utils.is_supported_content_type(head_response.headers["Content-Type"]):
             response = yield httpclient.AsyncHTTPClient().fetch(url, method='GET')
-            return response.body
+            return response.body, response.effective_url
         else:
-            return None
+            return None, None
