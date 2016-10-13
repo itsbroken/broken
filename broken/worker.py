@@ -30,8 +30,8 @@ class Worker:
         """
         url = yield store.queue.get()
         try:
-            if url in store.processing \
-               or url in store.crawled:
+            if url in self.store.processing \
+                    or url in self.store.crawled:
                 return
 
             print("Processing {}".format(url))
@@ -77,7 +77,8 @@ class Worker:
     def get_http_response_body_and_effective_url(self, url):
         head_response = yield httpclient.AsyncHTTPClient().fetch(url, method='HEAD')
 
-        if utils.is_supported_content_type(head_response.headers["Content-Type"]):
+        if utils.is_supported_content_type(head_response.headers["Content-Type"]) \
+                and head_response.effective_url not in self.store.crawled:
             response = yield httpclient.AsyncHTTPClient().fetch(url, method='GET')
             return response.body, response.effective_url
         else:
