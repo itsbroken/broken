@@ -36,7 +36,7 @@ def manager(index, base_url):
     store.queue.put(base_url)
 
     # Start all workers
-    workers = [Worker(store, base_url) for _ in range(num_workers)]
+    workers = [Worker(store) for _ in range(num_workers)]
 
     # Wait till the queue is empty
     try:

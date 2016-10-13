@@ -27,6 +27,7 @@ class Store:
     def __init__(self, index):
         Store.initialize()
         self.index = index
+        self.base_url = None
 
         self.queue = queues.Queue()
         self.processing = set()
