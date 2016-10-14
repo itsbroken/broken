@@ -21,8 +21,8 @@ class Store:
     def initialize(cls):
         if not cls.status_socket_created:
             ctx = zmq.Context.instance()
-            cls.status = ctx.socket(zmq.PUB)
-            cls.status.bind('tcp://127.0.0.1:5556')
+            cls.status_socket = ctx.socket(zmq.PUB)
+            cls.status_socket.bind('tcp://127.0.0.1:5556')
             cls.status_socket_created = True
 
     def __init__(self, index):
@@ -31,7 +31,7 @@ class Store:
         self.index = index
         self.base_url = None
         res = {"type": Status.progress.value, "data": "crawling"}
-        Store.status.send_string(str(self.index) + "," + json.dumps(res))
+        Store.status_socket.send_string(str(self.index) + "," + json.dumps(res))
 
         self.queue = queues.Queue()
         self.processing = set()
@@ -43,7 +43,7 @@ class Store:
         self.crawled.add(link)
         res = {"type": Status.counts.value,
                "data": [len(self.crawled), len(self.broken_links)]}
-        Store.status.send_string(str(self.index) + "," + json.dumps(res))
+        Store.status_socket.send_string(str(self.index) + "," + json.dumps(res))
 
     def get_num_broken_links(self):
         return len(self.broken_links)
@@ -54,14 +54,14 @@ class Store:
         self.broken_links[link] = {"index": index, "parents": {parent}}
         res = {"type": Status.broken_links.value,
                "data": [{"index": index, "link": link, "parents": [parent]}]}
-        Store.status.send_string(str(self.index) + "," + json.dumps(res))
+        Store.status_socket.send_string(str(self.index) + "," + json.dumps(res))
 
     def add_parent_for_broken_link(self, broken_link, parent_link):
         details = self.broken_links[broken_link]
         details["parents"].add(parent_link)
         res = {"type": Status.broken_links.value,
                "data": [{"index": details["index"], "link": broken_link, "parents": [parent_link]}]}
-        Store.status.send_string(str(self.index) + "," + json.dumps(res))
+        Store.status_socket.send_string(str(self.index) + "," + json.dumps(res))
 
     def get_formatted_broken_links(self):
         res = []
@@ -73,4 +73,4 @@ class Store:
 
     def complete(self):
         res = {"type": Status.progress.value, "data": "done"}
-        Store.status.send_string(str(self.index) + "," + json.dumps(res))
+        Store.status_socket.send_string(str(self.index) + "," + json.dumps(res))
