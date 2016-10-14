@@ -73,7 +73,10 @@ class Worker:
                 self.store.add_crawled(url)
 
         finally:
-            self.store.queue.task_done()
+            try:
+                self.store.queue.task_done()
+            except ValueError: # queue was aborted
+                pass
 
     @gen.coroutine
     def get_http_response_body_and_effective_url(self, url):

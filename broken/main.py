@@ -12,6 +12,8 @@ from worker import Worker
 zmq.eventloop.ioloop.install()
 
 num_workers = 10
+stores = {}
+workers_store = {}
 
 
 @gen.coroutine
@@ -19,10 +21,12 @@ def manager(index, base_url):
     start_time = time.time()
 
     store = Store(index)
+    stores[index] = store
     store.queue.put(base_url)
 
     # Start all workers
     workers = [Worker(store) for _ in range(num_workers)]
+    workers_store[index] = workers
 
     # Wait till the queue is empty
     try:
@@ -42,7 +46,17 @@ def manager(index, base_url):
 @gen.coroutine
 def handle_request(data):
     index, msg = pickle.loads(data[0])
-    yield manager(index, msg)
+    if msg is None:
+        for worker in workers_store[index]:
+            worker.running = False
+        while True:
+            try: # abort queue by calling task_done() many times
+                stores[index].queue.task_done()
+            except ValueError:
+                print('Crawl aborted')
+                break
+    else:
+        yield manager(index, msg)
 
 if __name__ == '__main__':
     ctx = zmq.Context.instance()

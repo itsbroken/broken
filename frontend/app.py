@@ -38,6 +38,8 @@ class MainHandler(web.RequestHandler):
 
 
 class MainWebSocketHandler(websocket.WebSocketHandler):
+    index = None
+
     def open(self):
         print("WebSocket opened")
 
@@ -50,20 +52,20 @@ class MainWebSocketHandler(websocket.WebSocketHandler):
         if utils.is_valid_url(url):
             global counter
             counter += 1
-            index = counter
+            self.index = counter
 
             ctx = zmq.Context.instance()
 
             status_socket = ctx.socket(zmq.SUB)
             status_socket.connect('tcp://127.0.0.1:5556')
-            status_socket.setsockopt_string(zmq.SUBSCRIBE, str(index))
+            status_socket.setsockopt_string(zmq.SUBSCRIBE, str(self.index))
 
             self.status_stream = zmqstream.ZMQStream(status_socket)
             self.status_stream.on_recv(self.handle_reply)
 
             s = ctx.socket(zmq.PUSH)
             s.connect('tcp://127.0.0.1:5555')
-            s.send_pyobj((index, url))
+            s.send_pyobj((self.index, url))
 
     def handle_reply(self, data):
         msg = ""
@@ -78,12 +80,17 @@ class MainWebSocketHandler(websocket.WebSocketHandler):
         elif update_type is store.Status.progress:
             msg = {"response_type": "status", "status": update_data}
 
-        if msg:
+        if msg and self.ws_connection:
             self.write_message(msg)
 
     def on_close(self):
         print("WebSocket closed")
-        # TODO: stop crawling when disconnected
+        # message backend to stop crawling
+        if self.index:
+            ctx = zmq.Context.instance()
+            s = ctx.socket(zmq.PUSH)
+            s.connect('tcp://127.0.0.1:5555')
+            s.send_pyobj((self.index, None))
 
     def check_origin(self, origin):  # TODO: check origin properly
         return True
