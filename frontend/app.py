@@ -54,16 +54,14 @@ class MainWebSocketHandler(websocket.WebSocketHandler):
             counter += 1
             self.index = counter
 
-            self.write_message({"response_type": "status", "status": "crawling"})
-
             ctx = zmq.Context.instance()
 
             status_socket = ctx.socket(zmq.SUB)
             status_socket.connect('tcp://127.0.0.1:5556')
             status_socket.setsockopt_string(zmq.SUBSCRIBE, str(self.index))
 
-            self.status_stream = zmqstream.ZMQStream(status_socket)
-            self.status_stream.on_recv(self.handle_reply)
+            status_stream = zmqstream.ZMQStream(status_socket)
+            status_stream.on_recv(self.handle_reply)
 
             s = ctx.socket(zmq.PUSH)
             s.connect('tcp://127.0.0.1:5555')

@@ -59,6 +59,7 @@ def handle_request(data):
         yield manager(index, msg)
 
 if __name__ == '__main__':
+    Store(0) # initialise status socket
     ctx = zmq.Context.instance()
     receiver = ctx.socket(zmq.PULL)
     receiver.bind('tcp://127.0.0.1:5555')
