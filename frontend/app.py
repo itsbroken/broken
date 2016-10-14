@@ -53,40 +53,30 @@ class MainWebSocketHandler(websocket.WebSocketHandler):
             index = counter
 
             ctx = zmq.Context.instance()
-            s = ctx.socket(zmq.REQ)
-            s.connect('tcp://127.0.0.1:5555')
-            s.send_pyobj((index, url))
 
             status_socket = ctx.socket(zmq.SUB)
             status_socket.connect('tcp://127.0.0.1:5556')
             status_socket.setsockopt_string(zmq.SUBSCRIBE, str(index))
 
-            self.write_message({"response_type": "status", "status": "crawling"})
             self.status_stream = zmqstream.ZMQStream(status_socket)
-            self.status_stream.on_recv_stream(self.handle_reply)
-            self.command_stream = zmqstream.ZMQStream(s)
-            self.command_stream.on_recv_stream(self.handle_reply)
+            self.status_stream.on_recv(self.handle_reply)
 
-    def handle_reply(self, stream, data):
+            s = ctx.socket(zmq.PUSH)
+            s.connect('tcp://127.0.0.1:5555')
+            s.send_pyobj((index, url))
+
+    def handle_reply(self, data):
         msg = ""
-        if stream == self.status_stream:
-            status_update = json.loads(data[0].decode('utf-8').split(',', 1)[1])
-            update_type = store.Status(status_update["type"])
-            update_data = status_update["data"]
+        status_update = json.loads(data[0].decode('utf-8').split(',', 1)[1])
+        update_type = store.Status(status_update["type"])
+        update_data = status_update["data"]
 
-            if update_type is store.Status.counts:
-                msg = {"response_type": "update_counts", "counts": update_data}
-            elif update_type is store.Status.broken_links:
-                msg = {"response_type": "update_links", "links": update_data}
-            # broken_links = json.loads(data[0].decode('utf-8').split(',', 1)[1])
-            # msg = {"response_type": "update",
-            #        "broken_links": broken_links}
-
-        elif stream == self.command_stream:
-            broken_links = json.loads(data[0].decode('utf-8'))
-            msg = {"response_type": "status",
-                   "status": "done",
-                   "broken_links": broken_links}
+        if update_type is store.Status.counts:
+            msg = {"response_type": "update_counts", "counts": update_data}
+        elif update_type is store.Status.broken_links:
+            msg = {"response_type": "update_links", "links": update_data}
+        elif update_type is store.Status.progress:
+            msg = {"response_type": "status", "status": update_data}
 
         if msg:
             self.write_message(msg)
