@@ -3,8 +3,11 @@ from zmq.eventloop import ioloop, zmqstream
 from tornado import websocket, web, ioloop, gen
 from tornado.options import define, options
 import json
-from broken import utils, store
 import os.path
+
+import sys
+sys.path.append('../broken')
+from broken import utils, store
 
 zmq.eventloop.ioloop.install()
 
