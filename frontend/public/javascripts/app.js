@@ -1,4 +1,5 @@
 var ws = new WebSocket("ws://" + location.host + "/websocket");
+var crawling = false;
 
 ws.onmessage = function (event) {
   data = JSON.parse(event.data);
@@ -10,6 +11,7 @@ ws.onmessage = function (event) {
     } else if (data.status == "done") {
       hide("spinner");
       show("tick");
+      crawling = false;
     }
   } else if (data.response_type == "update_counts") {
     var numCrawled = data.counts[0];
@@ -77,6 +79,12 @@ window.addEventListener("load", function () {
 
   form.addEventListener("submit", function (event) {
     event.preventDefault();
+
+    if (crawling) {
+        return;
+    }
+    crawling = true;
+
     reset();
     ws.send(JSON.stringify({
       "url": document.getElementById("url").value

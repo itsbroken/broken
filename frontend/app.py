@@ -54,6 +54,8 @@ class MainWebSocketHandler(websocket.WebSocketHandler):
             counter += 1
             self.index = counter
 
+            self.write_message({"response_type": "status", "status": "crawling"})
+
             ctx = zmq.Context.instance()
 
             status_socket = ctx.socket(zmq.SUB)
