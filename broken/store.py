@@ -11,6 +11,7 @@ ioloop.install()
 class Status(Enum):
     counts = 0
     broken_links = 1
+    progress = 2
 
 
 class Store:
@@ -26,8 +27,11 @@ class Store:
 
     def __init__(self, index):
         Store.initialize()
+
         self.index = index
         self.base_url = None
+        res = {"type": Status.progress.value, "data": "crawling"}
+        Store.status.send_string(str(self.index) + "," + json.dumps(res))
 
         self.queue = queues.Queue()
         self.processing = set()
@@ -66,3 +70,7 @@ class Store:
             parent_pages = details["parents"]
             res.append({"index": index, "link": broken_link, "parents": list(parent_pages)})
         return json.dumps(res)
+
+    def complete(self):
+        res = {"type": Status.progress.value, "data": "done"}
+        Store.status.send_string(str(self.index) + "," + json.dumps(res))
