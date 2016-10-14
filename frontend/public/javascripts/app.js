@@ -1,4 +1,5 @@
-var ws = new WebSocket("ws://" + location.host + "/websocket");
+var ws_proto = location.protocol == "https:" ? "wss://" : "ws://";
+var ws = new WebSocket( ws_proto + location.host + "/websocket");
 var crawling = false;
 
 ws.onmessage = function (event) {
@@ -37,14 +38,14 @@ function updateBrokenLinkCard(link) {
                     "<p class='broken-link-url'>{{link}}</p>" +
                     "<div class='broken-link-parents'>" +
                       "<p>Found in the following pages:</p>" +
-                      "<ol>" + 
+                      "<ol>" +
                         "{{#parents}}" +
                           "<li><a href='{{.}}'>{{.}}</a></li>" +
                         "{{/parents}}" +
                       "</ol>" +
                     "</div>" +
                   "</div>";
-  
+
   idString = "broken-link-" + link.index;
   existingElem = document.getElementById(idString);
   if (existingElem) {
@@ -74,7 +75,7 @@ function reset() {
   }
 }
 
-window.addEventListener("load", function () { 
+window.addEventListener("load", function () {
   var form = document.getElementById("url-form");
 
   form.addEventListener("submit", function (event) {
@@ -94,7 +95,7 @@ window.addEventListener("load", function () {
   var searchBar = document.getElementById("crawl-status");
   var stickPoint = form.offsetTop;
   var stuck = false;
-  
+
   window.onscroll = function(e) {
     var offset = window.pageYOffset;
     if (!stuck && (offset >= stickPoint)) {
