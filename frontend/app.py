@@ -6,7 +6,7 @@ import json
 import os.path
 
 import sys
-sys.path.append('../broken')
+sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 from broken import utils, store
 
 zmq.eventloop.ioloop.install()
