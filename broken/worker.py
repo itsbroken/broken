@@ -2,6 +2,11 @@ from tornado import gen, httpclient
 import utils
 import html_parser
 
+import logging
+import sys
+logging.basicConfig(stream=sys.stdout, level=logging.INFO,
+                    format='%(asctime)s - %(levelname)s - %(message)s')
+
 
 class Worker:
     def __init__(self, store):
@@ -49,12 +54,12 @@ class Worker:
 
         except httpclient.HTTPError as e:
             if e.code in range(400, 500):
-                print("{},".format(e.code), url)
+                logging.info("{}, {}".format(e.code, url))
                 self.store.add_broken_link(url)
             else:
-                print(e, url)
+                logging.info(e, url)
         except Exception as e:
-            print("Exception: {0}, {1}".format(e, url))
+            logging.warning("Exception: {}, {}".format(e, url))
 
     @gen.coroutine
     def run(self):

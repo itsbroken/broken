@@ -9,6 +9,11 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 from broken import utils, store
 
+import logging
+import sys
+logging.basicConfig(stream=sys.stdout, level=logging.INFO,
+                    format='%(asctime)s - %(levelname)s - %(message)s')
+
 zmq.eventloop.ioloop.install()
 
 counter = 0
@@ -44,13 +49,15 @@ class MainWebSocketHandler(websocket.WebSocketHandler):
     index = None
 
     def open(self):
-        print("WebSocket opened")
+        ip = self.request.remote_ip
+        ua = self.request.headers["User-Agent"]
+        logging.info("WebSocket opened: IP {}, User-Agent {}".format(ip, ua))
 
     @gen.coroutine
     def on_message(self, message):
         data = json.loads(message)
         url = data["url"]
-        print(url)
+        logging.info("New crawl request: {}".format(url))
 
         if utils.is_valid_url(url):
             global counter
@@ -87,7 +94,7 @@ class MainWebSocketHandler(websocket.WebSocketHandler):
             self.write_message(msg)
 
     def on_close(self):
-        print("WebSocket closed")
+        logging.info("WebSocket closed")
         # message backend to stop crawling
         if self.index:
             ctx = zmq.Context.instance()
@@ -102,5 +109,5 @@ class MainWebSocketHandler(websocket.WebSocketHandler):
 if __name__ == "__main__":
     options.parse_command_line()
     app = Application()
-    app.listen(options.port)
+    app.listen(options.port, xheaders=True)
     ioloop.IOLoop.current().start()
