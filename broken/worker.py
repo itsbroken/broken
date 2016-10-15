@@ -1,6 +1,7 @@
 from tornado import gen, httpclient
 import utils
 import html_parser
+import other_parsers
 
 import logging
 import sys
@@ -30,8 +31,8 @@ class Worker:
     def get_http_response_body_and_effective_url(self, url):
         head_response = yield httpclient.AsyncHTTPClient().fetch(url, method='HEAD')
 
-        if utils.is_supported_content_type(head_response.headers["Content-Type"]) \
-                and head_response.effective_url not in self.store.crawled:
+        if head_response.effective_url not in self.store.crawled and \
+                utils.is_supported_content_type(head_response.headers['Content-Type']):
             response = yield httpclient.AsyncHTTPClient().fetch(url, method='GET')
             return response.body, response.effective_url
         else:
@@ -64,7 +65,9 @@ class Worker:
         :param url: Parent URL
         :return:
         """
-        pass
+        if other_parsers.is_removed_imageshack_content(response_body):
+            self.store.add_broken_link(effective_url)
+            self.store.add_parent_for_broken_link(effective_url, url)
 
     @gen.coroutine
     def process_url(self):
@@ -89,7 +92,7 @@ class Worker:
 
                 # Check for links to Content Hosting Sites that do not follow HTTP Error Codes internally
                 if "imageshack" in effective_url:
-                    pass
+                    yield from self.process_imageshack_url(effective_url, response_body, url)
                 elif False:
                     pass
                 else:
