@@ -93,10 +93,7 @@ class Worker:
         response_body = response.body
 
         if other_parsers.is_removed_imageshack_content(response_body):
-
-            print("Invalid Imageshack Link detected")
-
-            self.store.parent_links[url] = effective_url
+            self.store.parent_links[effective_url] = url
             self.store.add_broken_link(effective_url)
             self.store.add_parent_for_broken_link(effective_url, url)
 
@@ -112,10 +109,7 @@ class Worker:
         effective_url = response.effective_url
 
         if "404.gif" in effective_url:
-
-            print("Invalid Tinypic Link detected")
-
-            self.store.parent_links[url] = effective_url
+            self.store.parent_links[effective_url] = url
             self.store.add_broken_link(effective_url)
             self.store.add_parent_for_broken_link(effective_url, url)
 
