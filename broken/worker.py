@@ -13,6 +13,12 @@ class Worker:
         self.run()
 
     def process_regular_url(self, url):
+        """
+        Processes a URL as if it were a normal website
+
+        :param url: The URL to process normally.
+        :return:
+        """
         try:
             response_body, effective_url = yield self.get_http_response_body_and_effective_url(url)
             # print("Received {}".format(url))
@@ -66,7 +72,7 @@ class Worker:
             # If special url, let the processors module handle
             # Else, continue to get the HTTP response
 
-            # Get response from URL
+            # Get normal response from URL
             yield from self.process_regular_url(url)
 
             if url != self.store.base_url and url in self.store.parent_links:
