@@ -32,7 +32,6 @@ class Worker:
         head_response = yield httpclient.AsyncHTTPClient().fetch(url, method='HEAD')
 
         if head_response.effective_url not in self.store.crawled:
-
             if 'Content-Type' in head_response.headers and \
                     not utils.is_supported_content_type(head_response.headers['Content-Type']):
                 return None, None
