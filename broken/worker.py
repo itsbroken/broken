@@ -58,9 +58,9 @@ class Worker:
             return response
         return None
 
-    def process_regular_url(self, url, response):
+    def queue_additional_links(self, url, response):
         """
-        Parses through the response for HTTP links
+        Parses through a HTML response for HTTP links
 
         :param url: Base / Parent URL
         :param response: The Tornado HTTP Response Object from a fetch of the url
@@ -81,9 +81,9 @@ class Worker:
                         self.store.add_parent_for_broken_link(link, url)
                     yield self.store.queue.put(link)
 
-    def process_imageshack_url(self, url, response):
+    def assert_valid_imageshack_link(self, url, response):
         """
-        Checks to see if content hosted on Imageshack is still valid.
+        Asserts the validity of an Imageshack link
 
         :param url: Base / Parent URL
         :param response: The Tornado HTTP Response Object from a fetch of the url
@@ -93,13 +93,11 @@ class Worker:
         response_body = response.body
 
         if other_parsers.is_removed_imageshack_content(response_body):
-            self.store.parent_links[effective_url] = url
-            self.store.add_broken_link(effective_url)
-            self.store.add_parent_for_broken_link(effective_url, url)
+            raise httpclient.HTTPError(code=404)
 
-    def process_tinypic_url(self, url, response):
+    def assert_valid_tinypic_link(self, url, response):
         """
-        Checks to see if content hosted on Tinypic is still valid.
+        Asserts the validity of a Tinypic Link
 
         :param url: Base / Parent URL
         :param response: The Tornado HTTP Response Object from a fetch of the url
@@ -108,10 +106,10 @@ class Worker:
 
         effective_url = response.effective_url
 
+        print(effective_url)
+
         if "404.gif" in effective_url:
-            self.store.parent_links[effective_url] = url
-            self.store.add_broken_link(effective_url)
-            self.store.add_parent_for_broken_link(effective_url, url)
+            raise httpclient.HTTPError(code=404)
 
     @gen.coroutine
     def process_url(self):
@@ -136,13 +134,13 @@ class Worker:
                 if not self.store.base_url:
                     self.store.base_url = effective_url
 
-                # Check for links to Content Hosting Sites that do not follow HTTP Error Codes internally
+                # Check for links to Content Hosting Sites that do not fully follow HTTP Error Codes internally
                 if "imageshack" in effective_url:
-                    self.process_imageshack_url(url, response)
+                    self.assert_valid_imageshack_link(url, response)
                 elif "tinypic" in effective_url:
-                    self.process_tinypic_url(url, response)
+                    self.assert_valid_tinypic_link(url, response)
                 else:
-                    yield from self.process_regular_url(url, response)
+                    yield from self.queue_additional_links(url, response)
 
             except httpclient.HTTPError as e:
                 if e.code in range(400, 500):
@@ -151,7 +149,7 @@ class Worker:
                 else:
                     logging.info(e, url)
             except Exception as e:
-                logging.exception("Exception: {}, {}".format(e, url))
+                logging.warning("Exception: {}, {}".format(e, url))
             finally:
                 if url != self.store.base_url and url in self.store.parent_links:
                     del self.store.parent_links[url]  # Remove entry in parent link to save space
