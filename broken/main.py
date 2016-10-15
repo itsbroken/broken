@@ -6,6 +6,11 @@ from datetime import timedelta
 from tornado import gen, ioloop
 import pickle
 
+import logging
+import sys
+logging.basicConfig(stream=sys.stdout, level=logging.INFO,
+                    format='%(asctime)s - %(levelname)s - %(message)s')
+
 from store import Store
 from worker import Worker
 
@@ -36,11 +41,11 @@ def manager(index, base_url):
             worker.running = False
 
     store.complete()
-    print("Crawled {0} for {1:.2f} seconds, found {2} URLs, "
-          "{3} broken links".format(base_url,
-                                    time.time() - start_time,
-                                    len(store.crawled),
-                                    store.get_num_broken_links()))
+    logging.info("Crawled {0} for {1:.2f} seconds, found {2} URLs, "
+                 "{3} broken links".format(base_url,
+                                           time.time() - start_time,
+                                           len(store.crawled),
+                                           store.get_num_broken_links()))
 
 
 @gen.coroutine
@@ -53,7 +58,7 @@ def handle_request(data):
             try:  # abort queue by calling task_done() many times
                 stores[index].queue.task_done()
             except ValueError:
-                print('Crawl aborted')
+                logging.info('Crawl aborted')
                 break
     else:
         yield manager(index, msg)
