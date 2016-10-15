@@ -1,7 +1,6 @@
 from tornado import gen, httpclient
 import utils
 import html_parser
-import processors
 
 
 class Worker:
@@ -12,6 +11,33 @@ class Worker:
         self.store = store
         self.running = True
         self.run()
+
+    def process_regular_url(self, url):
+        try:
+            response_body, effective_url = yield self.get_http_response_body_and_effective_url(url)
+            # print("Received {}".format(url))
+
+            if not self.store.base_url:
+                self.store.base_url = effective_url
+
+            # Extract links
+            found_links = html_parser.extract_links(effective_url, response_body)
+
+            for link in found_links:
+                if link.startswith(self.store.base_url):  # Only allow links that stem from the base url
+                    self.store.parent_links[link] = url  # Keep track of the parent of the found link
+                    if link in self.store.broken_links:  # Add links that lead to this broken link
+                        self.store.add_parent_for_broken_link(link, url)
+                    yield self.store.queue.put(link)
+
+        except httpclient.HTTPError as e:
+            if e.code in range(400, 500):
+                print("{},".format(e.code), url)
+                self.store.add_broken_link(url)
+            else:
+                print(e, url)
+        except Exception as e:
+            print("Exception: {0}, {1}".format(e, url))
 
     @gen.coroutine
     def run(self):
@@ -43,44 +69,16 @@ class Worker:
             # Get response from URL
             yield from self.process_regular_url(url)
 
+            if url != self.store.base_url and url in self.store.parent_links:
+                del self.store.parent_links[url]  # Remove entry in parent link to save space
+            self.store.processing.remove(url)
+            self.store.add_crawled(url)
+
         finally:
             try:
                 self.store.queue.task_done()
             except ValueError:  # queue was aborted
                 pass
-
-    def process_regular_url(self, url):
-        try:
-            response_body, effective_url = yield self.get_http_response_body_and_effective_url(url)
-            # print("Received {}".format(url))
-
-            if not self.store.base_url:
-                self.store.base_url = effective_url
-
-            # Extract links
-            found_links = html_parser.extract_links(effective_url, response_body)
-
-            for link in found_links:
-                if link.startswith(self.store.base_url):  # Only allow links that stem from the base url
-                    self.store.parent_links[link] = url  # Keep track of the parent of the found link
-                    if link in self.store.broken_links:  # Add links that lead to this broken link
-                        self.store.add_parent_for_broken_link(link, url)
-                    yield self.store.queue.put(link)
-
-        except httpclient.HTTPError as e:
-            if e.code in range (400, 500):
-                print("{},".format(e.code), url)
-                self.store.add_broken_link(url)
-            else:
-                print(e, url)
-        except Exception as e:
-            print("Exception: {0}, {1}".format(e, url))
-
-        finally:
-            if url != self.store.base_url and url in self.store.parent_links:
-                del self.store.parent_links[url]  # Remove entry in parent link to save space
-            self.store.processing.remove(url)
-            self.store.add_crawled(url)
 
     @gen.coroutine
     def get_http_response_body_and_effective_url(self, url):
