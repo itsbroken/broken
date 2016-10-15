@@ -68,8 +68,8 @@ class Worker:
                     yield self.store.queue.put(link)
 
         except httpclient.HTTPError as e:
-            if e.code == 404:
-                print("404,", url)
+            if e.code in range (400, 500):
+                print("{},".format(e.code), url)
                 self.store.add_broken_link(url)
             else:
                 print(e, url)
