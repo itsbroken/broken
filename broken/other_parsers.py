@@ -1,4 +1,4 @@
-# Various Parsers
+# Various Parsers for html returned by various Content-Hosting-Sites
 
 from bs4 import BeautifulSoup
 
@@ -21,4 +21,6 @@ def is_removed_imageshack_content(response_body):
         return True
 
     return False
+
+
 

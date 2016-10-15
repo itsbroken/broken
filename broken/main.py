@@ -35,8 +35,8 @@ def manager(index, base_url):
 
     # Wait till the queue is empty
     try:
-        yield store.queue.join(timeout=timedelta(seconds=50))
-    except gen.TimeoutError:  # TEMP: timeout at 20 seconds
+        yield store.queue.join(timeout=timedelta(seconds=60))
+    except gen.TimeoutError:  # TEMP: timeout at 60 seconds
         for worker in workers:
             worker.running = False
 

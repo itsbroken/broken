@@ -29,6 +29,7 @@ class Worker:
 
     @gen.coroutine
     def get_http_response_body_and_effective_url(self, url):
+
         head_response = yield httpclient.AsyncHTTPClient().fetch(url, method='HEAD')
 
         if head_response.effective_url not in self.store.crawled:
@@ -41,34 +42,80 @@ class Worker:
         else:
             return None, None
 
-    def process_regular_url(self, effective_url, response_body, url):
+    @gen.coroutine
+    def get_http_header_response(self, url):
+        head_response = yield httpclient.AsyncHTTPClient().fetch(url, method='HEAD')
+
+        if head_response.effective_url not in self.store.crawled:
+            return head_response
+        return None
+
+    @gen.coroutine
+    def get_http_full_response(self, url):
+        response = yield httpclient.AsyncHTTPClient().fetch(url, method='GET')
+
+        if response.effective_url not in self.store.crawled:
+            return response
+        return None
+
+    def process_regular_url(self, url, response):
         """
         Parses through the response for HTTP links
 
-        :param effective_url: URL after redirects are handled
-        :param response_body: The HTTP Response obtained from exploring the effective_url
-        :param url: Parent URL
+        :param url: Base / Parent URL
+        :param response: The Tornado HTTP Response Object from a fetch of the url
         :return:
         """
-        # Extract links
-        found_links = html_parser.extract_links(effective_url, response_body)
-        for link in found_links:
-            if link.startswith(self.store.base_url):  # Only allow links that stem from the base url
-                self.store.parent_links[link] = url  # Keep track of the parent of the found link
-                if link in self.store.broken_links:  # Add links that lead to this broken link
-                    self.store.add_parent_for_broken_link(link, url)
-                yield self.store.queue.put(link)
+        if 'Content-Type' in response.headers and \
+                utils.is_supported_content_type(response.headers['Content-Type']):
 
-    def process_imageshack_url(self, effective_url, response_body, url):
+            effective_url = response.effective_url
+            response_body = response.body
+
+            # Extract links
+            found_links = html_parser.extract_links(effective_url, response_body)
+            for link in found_links:
+                if link.startswith(self.store.base_url):  # Only allow links that stem from the base url
+                    self.store.parent_links[link] = url  # Keep track of the parent of the found link
+                    if link in self.store.broken_links:  # Add links that lead to this broken link
+                        self.store.add_parent_for_broken_link(link, url)
+                    yield self.store.queue.put(link)
+
+    def process_imageshack_url(self, url, response):
         """
-        Checks to see if content hosted on Imageshack is still valid
+        Checks to see if content hosted on Imageshack is still valid.
 
-        :param effective_url: URL after redirects are handled
-        :param response_body: The HTTP Response obtained from exploring the effective_url
-        :param url: Parent URL
+        :param url: Base / Parent URL
+        :param response: The Tornado HTTP Response Object from a fetch of the url
         :return:
         """
+        effective_url = response.effective_url
+        response_body = response.body
+
         if other_parsers.is_removed_imageshack_content(response_body):
+
+            print("Invalid Imageshack Link detected")
+
+            self.store.parent_links[url] = effective_url
+            self.store.add_broken_link(effective_url)
+            self.store.add_parent_for_broken_link(effective_url, url)
+
+    def process_tinypic_url(self, url, response):
+        """
+        Checks to see if content hosted on Tinypic is still valid.
+
+        :param url: Base / Parent URL
+        :param response: The Tornado HTTP Response Object from a fetch of the url
+        :return:
+        """
+
+        effective_url = response.effective_url
+
+        if "404.gif" in effective_url:
+
+            print("Invalid Tinypic Link detected")
+
+            self.store.parent_links[url] = effective_url
             self.store.add_broken_link(effective_url)
             self.store.add_parent_for_broken_link(effective_url, url)
 
@@ -87,19 +134,21 @@ class Worker:
             self.store.processing.add(url)
 
             try:
-                response_body, effective_url = yield self.get_http_response_body_and_effective_url(url)
+                response = yield self.get_http_full_response(url)
                 # print("Received {}".format(url))
+
+                effective_url = response.effective_url
 
                 if not self.store.base_url:
                     self.store.base_url = effective_url
 
                 # Check for links to Content Hosting Sites that do not follow HTTP Error Codes internally
                 if "imageshack" in effective_url:
-                    yield from self.process_imageshack_url(effective_url, response_body, url)
-                elif False:
-                    pass
+                    self.process_imageshack_url(url, response)
+                elif "tinypic" in effective_url:
+                    self.process_tinypic_url(url, response)
                 else:
-                    yield from self.process_regular_url(effective_url, response_body, url)
+                    yield from self.process_regular_url(url, response)
 
             except httpclient.HTTPError as e:
                 if e.code in range(400, 500):
@@ -108,12 +157,12 @@ class Worker:
                 else:
                     logging.info(e, url)
             except Exception as e:
-                logging.warning("Exception: {}, {}".format(e, url))
-
-            if url != self.store.base_url and url in self.store.parent_links:
-                del self.store.parent_links[url]  # Remove entry in parent link to save space
-            self.store.processing.remove(url)
-            self.store.add_crawled(url)
+                logging.exception("Exception: {}, {}".format(e, url))
+            finally:
+                if url != self.store.base_url and url in self.store.parent_links:
+                    del self.store.parent_links[url]  # Remove entry in parent link to save space
+                self.store.processing.remove(url)
+                self.store.add_crawled(url)
 
         finally:
             try:
