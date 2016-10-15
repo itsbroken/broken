@@ -50,7 +50,7 @@ def handle_request(data):
         for worker in workers_store[index]:
             worker.running = False
         while True:
-            try: # abort queue by calling task_done() many times
+            try:  # abort queue by calling task_done() many times
                 stores[index].queue.task_done()
             except ValueError:
                 print('Crawl aborted')
@@ -59,7 +59,7 @@ def handle_request(data):
         yield manager(index, msg)
 
 if __name__ == '__main__':
-    Store(0) # initialise status socket
+    Store(0)  # initialise status socket
     ctx = zmq.Context.instance()
     receiver = ctx.socket(zmq.PULL)
     receiver.bind('tcp://127.0.0.1:5555')
