@@ -31,10 +31,14 @@ class Worker:
     def get_http_response_body_and_effective_url(self, url):
         head_response = yield httpclient.AsyncHTTPClient().fetch(url, method='HEAD')
 
-        if head_response.effective_url not in self.store.crawled and \
-                utils.is_supported_content_type(head_response.headers['Content-Type']):
-            response = yield httpclient.AsyncHTTPClient().fetch(url, method='GET')
-            return response.body, response.effective_url
+        if head_response.effective_url not in self.store.crawled:
+
+            if 'Content-Type' in head_response.headers and \
+                    not utils.is_supported_content_type(head_response.headers['Content-Type']):
+                return None, None
+            else:
+                response = yield httpclient.AsyncHTTPClient().fetch(url, method='GET')
+                return response.body, response.effective_url
         else:
             return None, None
 
