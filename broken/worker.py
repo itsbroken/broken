@@ -66,6 +66,7 @@ class Worker:
         :param response: The Tornado HTTP Response Object from a fetch of the url
         :return:
         """
+
         if 'Content-Type' in response.headers and \
                 utils.is_supported_content_type(response.headers['Content-Type']):
 
@@ -89,6 +90,7 @@ class Worker:
         :param response: The Tornado HTTP Response Object from a fetch of the url
         :return:
         """
+
         effective_url = response.effective_url
         response_body = response.body
 
@@ -105,8 +107,6 @@ class Worker:
         """
 
         effective_url = response.effective_url
-
-        print(effective_url)
 
         if "404.gif" in effective_url:
             raise httpclient.HTTPError(code=404)
