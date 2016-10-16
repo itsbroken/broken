@@ -53,6 +53,26 @@ def test_extract_href_relative_reference_absolute_path():
     assert found_links == links
 
 
+def test_extract_href_relative_reference_absolute_path_via_base_tag():
+    html = """
+    <html>
+        <head>
+            <base href="http://www.nus.edu.sg/">
+            <base href="http://www.comp.nus.edu.sg/">
+        </head>
+
+        <body>
+            <a href="villas/luxury-villas"> Villas </a>
+        </body>
+    </html>
+    """
+
+    links = {"http://www.nus.edu.sg/villas/luxury-villas/"}
+    found_links = set()
+    extract_href_links(found_links, "http://www.comp.nus.edu.sg/news/", html)
+    assert found_links == links
+
+
 def test_extract_href_links_with_javascript():
     html = """
     <a href="  javascript:void(0)"></a>
