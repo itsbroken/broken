@@ -82,35 +82,6 @@ class Worker:
                         self.store.add_parent_for_broken_link(link, url)
                     yield self.store.queue.put(link)
 
-    def assert_valid_imageshack_link(self, url, response):
-        """
-        Asserts the validity of an Imageshack link
-
-        :param url: Base / Parent URL
-        :param response: The Tornado HTTP Response Object from a fetch of the url
-        :return:
-        """
-
-        effective_url = response.effective_url
-        response_body = response.body
-
-        if other_parsers.is_removed_imageshack_content(response_body):
-            raise httpclient.HTTPError(code=404)
-
-    def assert_valid_tinypic_link(self, url, response):
-        """
-        Asserts the validity of a Tinypic Link
-
-        :param url: Base / Parent URL
-        :param response: The Tornado HTTP Response Object from a fetch of the url
-        :return:
-        """
-
-        effective_url = response.effective_url
-
-        if "404.gif" in effective_url:
-            raise httpclient.HTTPError(code=404)
-
     @gen.coroutine
     def process_url(self):
         """
@@ -136,9 +107,9 @@ class Worker:
 
                 # Check for links to Content Hosting Sites that do not fully follow HTTP Error Codes internally
                 if "imageshack" in effective_url:
-                    self.assert_valid_imageshack_link(url, response)
+                    other_parsers.assert_valid_imageshack_link(url, response)
                 elif "tinypic" in effective_url:
-                    self.assert_valid_tinypic_link(url, response)
+                    other_parsers.assert_valid_tinypic_link(url, response)
                 else:
                     yield from self.queue_additional_links(url, response)
 
