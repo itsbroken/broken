@@ -51,7 +51,8 @@ def manager(index, base_url):
 @gen.coroutine
 def handle_request(data):
     index, msg = pickle.loads(data[0])
-    if msg is None:
+    workers = workers_store.get(index)
+    if msg is None and workers:
         for worker in workers_store[index]:
             worker.running = False
         while True:
