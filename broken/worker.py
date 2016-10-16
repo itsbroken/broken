@@ -106,11 +106,7 @@ class Worker:
                     self.store.base_url = effective_url
 
                 # Check for links to Content Hosting Sites that do not fully follow HTTP Error Codes internally
-                if "imageshack" in effective_url:
-                    other_parsers.assert_valid_imageshack_link(url, response)
-                elif "tinypic" in effective_url:
-                    other_parsers.assert_valid_tinypic_link(url, response)
-                else:
+                if not other_parsers.is_special_link(response):
                     yield from self.queue_additional_links(url, response)
 
             except httpclient.HTTPError as e:
@@ -118,7 +114,7 @@ class Worker:
                     logging.info("{}, {}".format(e.code, url))
                     self.store.add_broken_link(url)
                 else:
-                    logging.info(e, url)
+                    logging.info("{} {}".format(e, url))
             except Exception as e:
                 logging.warning("Exception: {}, {}".format(e, url))
             finally:

@@ -2,6 +2,30 @@
 
 from tornado import httpclient
 from bs4 import BeautifulSoup
+from urllib.parse import urlparse
+
+
+def is_special_link(response):
+    url = response.effective_url
+
+    if is_imageshack_link(url):
+        assert_valid_imageshack_link(response)
+        return True
+
+    elif is_tinypic_link(url):
+        assert_valid_tinypic_link(response)
+        return True
+
+    else:
+        return False
+
+
+def is_imageshack_link(url):
+    return urlparse(url).netloc.lower() == 'imageshack.com'
+
+
+def is_tinypic_link(url):
+    return urlparse(url).netloc.lower() == 'tinypic.com'
 
 
 def is_removed_imageshack_content(response_body):
