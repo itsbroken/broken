@@ -56,7 +56,10 @@ def handle_request(data):
             worker.running = False
         while True:
             try:  # abort queue by calling task_done() many times
-                stores[index].queue.task_done()
+                store = stores.get(index)
+                if not store:
+                    break
+                store.queue.task_done()
             except ValueError:
                 logging.info('Crawl aborted')
                 break

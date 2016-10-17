@@ -99,6 +99,8 @@ class Worker:
             try:
                 response = yield self.get_http_full_response(url)
                 # print("Received {}".format(url))
+                if not response:
+                    return
 
                 effective_url = response.effective_url
 
@@ -116,7 +118,7 @@ class Worker:
                 else:
                     logging.info("{} {}".format(e, url))
             except Exception as e:
-                logging.warning("Exception: {}, {}".format(e, url))
+                logging.warning("Exception: {}, {}".format(e, url), exc_info=1)
             finally:
                 if url != self.store.base_url and url in self.store.parent_links:
                     del self.store.parent_links[url]  # Remove entry in parent link to save space
