@@ -50,9 +50,7 @@ class Store:
 
     def add_broken_link(self, link):
         index = self.get_num_broken_links() + 1
-        parent = self.parent_links.get(link)
-        if not parent:
-            parent = link
+        parent = self.parent_links.get(link, link)
         self.broken_links[link] = {"index": index, "parents": {parent}}
         res = {"type": Status.broken_links.value,
                "data": [{"index": index, "link": link, "parents": [parent]}]}

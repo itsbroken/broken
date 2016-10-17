@@ -51,9 +51,8 @@ def manager(index, base_url):
 @gen.coroutine
 def handle_request(data):
     index, msg = pickle.loads(data[0])
-    workers = workers_store.get(index)
-    if msg is None and workers:
-        for worker in workers_store[index]:
+    if msg is None:
+        for worker in workers_store.get(index, []):
             worker.running = False
         while True:
             try:  # abort queue by calling task_done() many times
