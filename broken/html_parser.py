@@ -24,11 +24,17 @@ def extract_links(url, response_body):
 
 
 def extract_href_links(found_links, url, response_body):
+    base_href = url
+
+    for base_link in BeautifulSoup(response_body, "html.parser", parse_only=SoupStrainer('base', href=True)):
+        base_href = base_link["href"].strip()
+        break
+
     for found_link in BeautifulSoup(response_body, "html.parser", parse_only=SoupStrainer('a', href=True)):
         link = found_link["href"].strip()
         if re.match(r'javascript:|mailto:', link):
             continue
-        found_links.add(normalize_url(url, link))
+        found_links.add(normalize_url(base_href, link))
 
 
 def extract_img_src_links(found_links, url, response_body):

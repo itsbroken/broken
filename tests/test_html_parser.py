@@ -67,7 +67,7 @@ def test_extract_href_relative_reference_absolute_path_via_base_tag():
     </html>
     """
 
-    links = {"http://www.nus.edu.sg/villas/luxury-villas/"}
+    links = {"http://www.nus.edu.sg/villas/luxury-villas"}
     found_links = set()
     extract_href_links(found_links, "http://www.comp.nus.edu.sg/news/", html)
     assert found_links == links
