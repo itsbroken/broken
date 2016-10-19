@@ -1,4 +1,5 @@
 from tornado import gen, httpclient
+from urllib.parse import urlparse
 import utils
 import html_parser
 import other_parsers
@@ -76,7 +77,8 @@ class Worker:
             # Extract links
             found_links = html_parser.extract_links(effective_url, response_body)
             for link in found_links:
-                if link.startswith(self.store.base_url):  # Only allow links that stem from the base url
+                link_host = urlparse(link).netloc.lower()
+                if link_host == self.store.base_host:  # Only allow links that stem from the base host
                     self.store.parent_links[link] = url  # Keep track of the parent of the found link
                     if link in self.store.broken_links:  # Add links that lead to this broken link
                         self.store.add_parent_for_broken_link(link, url)
@@ -106,6 +108,7 @@ class Worker:
 
                 if not self.store.base_url:
                     self.store.base_url = effective_url
+                    self.store.base_host = urlparse(effective_url).netloc.lower()
 
                 # Check for links to Content Hosting Sites that do not fully follow HTTP Error Codes internally
                 if not other_parsers.is_special_link(response):

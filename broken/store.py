@@ -30,6 +30,7 @@ class Store:
 
         self.index = index
         self.base_url = None
+        self.base_host = None
         res = {"type": Status.progress.value, "data": "crawling"}
         Store.status_socket.send_string(str(self.index) + "," + json.dumps(res))
 
