@@ -13,6 +13,7 @@ logging.basicConfig(stream=sys.stdout, level=logging.INFO,
 
 from store import Store
 from worker import Worker
+from tornado import gen
 
 zmq.eventloop.ioloop.install()
 
