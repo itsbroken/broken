@@ -16,6 +16,7 @@ class Status(Enum):
 
 class Store:
     status_socket_created = False
+    timed_out = False
 
     @classmethod
     def initialize(cls):
@@ -32,7 +33,7 @@ class Store:
         self.base_url = None
         self.base_host = None
         res = {"type": Status.progress.value, "data": "crawling"}
-        Store.status_socket.send_string(str(self.index) + "," + json.dumps(res))
+        self.message_ui(json.dumps(res))
 
         self.queue = queues.Queue()
         self.processing = set()
@@ -40,11 +41,15 @@ class Store:
         self.broken_links = {}
         self.parent_links = {}
 
+    def message_ui(self, message, force=False):
+        if not self.timed_out or force:
+            Store.status_socket.send_string(str(self.index) + "," + message)
+
     def add_crawled(self, link):
         self.crawled.add(link)
         res = {"type": Status.counts.value,
                "data": [len(self.crawled), len(self.broken_links)]}
-        Store.status_socket.send_string(str(self.index) + "," + json.dumps(res))
+        self.message_ui(json.dumps(res))
 
     def get_num_broken_links(self):
         return len(self.broken_links)
@@ -55,14 +60,14 @@ class Store:
         self.broken_links[link] = {"index": index, "parents": {parent}}
         res = {"type": Status.broken_links.value,
                "data": [{"index": index, "link": link, "parents": [parent]}]}
-        Store.status_socket.send_string(str(self.index) + "," + json.dumps(res))
+        self.message_ui(json.dumps(res))
 
     def add_parent_for_broken_link(self, broken_link, parent_link):
         details = self.broken_links[broken_link]
         details["parents"].add(parent_link)
         res = {"type": Status.broken_links.value,
                "data": [{"index": details["index"], "link": broken_link, "parents": [parent_link]}]}
-        Store.status_socket.send_string(str(self.index) + "," + json.dumps(res))
+        self.message_ui(json.dumps(res))
 
     def get_formatted_broken_links(self):
         res = []
@@ -74,4 +79,4 @@ class Store:
 
     def complete(self):
         res = {"type": Status.progress.value, "data": "done"}
-        Store.status_socket.send_string(str(self.index) + "," + json.dumps(res))
+        self.message_ui(json.dumps(res), True)
