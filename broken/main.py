@@ -13,7 +13,6 @@ logging.basicConfig(stream=sys.stdout, level=logging.INFO,
 
 from store import Store
 from worker import Worker
-from tornado import gen
 
 zmq.eventloop.ioloop.install()
 
@@ -38,9 +37,9 @@ def manager(index, base_url):
     try:
         yield store.queue.join(timeout=timedelta(seconds=60))
     except gen.TimeoutError:  # TEMP: timeout at 60 seconds
+        store.timed_out = True
         for worker in workers:
             worker.running = False
-        gen.sleep(2)
 
     store.complete()
     logging.info("Crawled {0} for {1:.2f} seconds, found {2} URLs, "
