@@ -34,7 +34,7 @@ input[type="text"] {
     outline: 0; }
 
 /* –––––––––––––––––––––––––––––––––––––––––––––––––– */
-form .url-input, #crawl-status, .broken-link-data {
+form, #crawl-status, .broken-link-data {
   max-width: 630px;
   width: 90vw; }
 
@@ -74,9 +74,10 @@ html {
 
 form {
   z-index: 99;
-  margin-bottom: 24px; }
+  margin-bottom: 24px;
+  white-space: nowrap; }
   form .url-input {
-    padding: 20px 38px 20px 20px;
+    width: 100%;
     margin: 0; }
   form .url-submit {
     width: 26px;
@@ -109,7 +110,7 @@ form {
       -ms-flex-align: center;
           align-items: center;
   background-color: white;
-  margin: -32px 0 24px -4px;
+  margin: -32px 0 24px 0;
   box-sizing: border-box;
   border: 1px solid #D1D1D1;
   border-radius: 4px;

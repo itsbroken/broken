@@ -100,8 +100,12 @@ window.addEventListener("load", function () {
     var offset = window.pageYOffset;
     if (!stuck && (offset >= stickPoint)) {
       stuck = true;
-      searchBar.style.position = 'fixed';
       searchBar.style.top = '50px';
+      if (navigator.userAgent.toLowerCase().indexOf('firefox') > -1) {
+        searchBar.style.position = 'sticky';
+      } else {
+        searchBar.style.position = 'fixed';
+      }
     } else if (stuck && (offset < stickPoint)) {
       stuck = false;
       searchBar.style.position = 'static';

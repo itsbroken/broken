@@ -80,12 +80,13 @@ html {
 }
 
 form {
+  @extend %centered-main-column;
   z-index: 99;
   margin-bottom: 24px;
+  white-space: nowrap;
 
   .url-input {
-    @extend %centered-main-column;
-    padding: 20px 38px 20px 20px;
+    width: 100%;
     margin: 0;
   }
 
@@ -123,7 +124,7 @@ form {
   display: flex;
   align-items: center;
   background-color: white;
-  margin: -32px 0 24px -4px;
+  margin: -32px 0 24px 0;
   box-sizing: border-box;
   border: 1px solid $border-color;
   border-radius: 4px;
