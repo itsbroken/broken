@@ -39,6 +39,7 @@ def manager(index, base_url):
     except gen.TimeoutError:  # TEMP: timeout at 60 seconds
         for worker in workers:
             worker.running = False
+        gen.sleep(2)
 
     store.complete()
     logging.info("Crawled {0} for {1:.2f} seconds, found {2} URLs, "
