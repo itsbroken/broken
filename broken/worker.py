@@ -90,6 +90,8 @@ class Worker:
         Gets a URL from the queue and checks if it needs to be handled by special rules or crawled as per normal
         """
         url = yield self.store.queue.get()
+        if not urlparse(url).scheme:
+            url = 'http://' + url
         try:
             if url in self.store.processing \
                     or url in self.store.crawled:
