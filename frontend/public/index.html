@@ -28,31 +28,31 @@
       </button>
     </form>
     <div id="crawl-options" class="hidden">
-      <div class="option-header">Type of accepted urls</div>
-      <label for="accepted-urls-1">
-        <input type=radio id="accepted-urls-1" name="accepted-urls" value="0" checked> Option 1 
+      <div class="option-header">Limit to URLs starting with...</div>
+      <label id="accepted-urls-1-label" for="accepted-urls-1">
+        <input type=radio id="accepted-urls-1" name="accepted-urls" value="0" checked>Root URL
       </label>
-      <label for="accepted-urls-2">
-        <input type=radio id="accepted-urls-2" name="accepted-urls" value="1"> Option 2 
+      <label id="accepted-urls-2-label" for="accepted-urls-2">
+        <input type=radio id="accepted-urls-2" name="accepted-urls" value="1">Entire given URL
       </label>
 
       <div class="option-header">Maximum crawl duration</div>
       <label for="crawl-duration-1">
-        <input type=radio id="crawl-duration-1" name="crawl-duration" value="0"> 30s 
+        <input type=radio id="crawl-duration-1" name="crawl-duration" value="0">30s 
       </label>
       <label for="crawl-duration-2">
-        <input type=radio id="crawl-duration-2" name="crawl-duration" value="1" checked> 60s 
+        <input type=radio id="crawl-duration-2" name="crawl-duration" value="1" checked>60s 
       </label>
       <label for="crawl-duration-3">
-        <input type=radio id="crawl-duration-3" name="crawl-duration" value="2"> 300s 
+        <input type=radio id="crawl-duration-3" name="crawl-duration" value="2">300s 
       </label>
 
       <div class="option-header">Find broken images & videos</div>
       <label for="media-types-1">
-        <input type=checkbox id="media-types-1" name="media-types" value="0" checked> Images 
+        <input type=checkbox id="media-types-1" name="media-types" value="0" checked>Images 
       </label>
       <label for="media-types-2">
-        <input type=checkbox id="media-types-2" name="media-types" value="1" checked> Videos
+        <input type=checkbox id="media-types-2" name="media-types" value="1" checked>Videos
       </label>
     </div>
     <div id="crawl-status" class="hidden">

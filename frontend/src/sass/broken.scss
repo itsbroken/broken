@@ -89,6 +89,7 @@ form {
   .url-input {
     width: 100%;
     margin: 0;
+    padding-right: 70px;
   }
 
   .url-submit, .btn-options {
@@ -161,9 +162,10 @@ form {
   label {
     display: block;
     font-size: 0.9em;
+    word-break: break-all;
   }
   input {
-    margin-right: 5px;
+    margin-right: 10px;
   }
 }
 

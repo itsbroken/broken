@@ -122,6 +122,7 @@ function getOptions() {
 window.addEventListener("load", function () {
   var form = document.getElementById("url-form");
 
+  // Submit listener
   form.addEventListener("submit", function (event) {
     event.preventDefault();
 
@@ -135,6 +136,28 @@ window.addEventListener("load", function () {
       "url": document.getElementById("url").value,
       "options": getOptions()
     }));
+  });
+
+  // Input url listener
+  var input = document.getElementById("url");
+  input.addEventListener('input', function() {
+    url = input.value;
+
+    // Add "http://" for urls without them
+    if (!url.trim().startsWith("http://") && !url.trim().startsWith("https://")) {
+      url = "http://" + url;
+    }
+
+    var parser = document.createElement('a');
+    parser.href = url;
+    var rootUrl = parser.protocol + "//" + parser.host;
+    if (input.value === "") {
+      document.getElementById("accepted-urls-1-label").childNodes[2].textContent = "Root URL";
+      document.getElementById("accepted-urls-2-label").childNodes[2].textContent = "Entire given URL";
+    } else {
+      document.getElementById("accepted-urls-1-label").childNodes[2].textContent = "Root URL: " + rootUrl;
+      document.getElementById("accepted-urls-2-label").childNodes[2].textContent = "Entire given URL: " + rootUrl + parser.pathname;
+    }
   });
 
   var searchBar = document.getElementById("crawl-status");
