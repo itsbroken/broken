@@ -1,38 +1,30 @@
 var gulp = require('gulp'),
     sass = require('gulp-sass'),
     autoprefixer = require('gulp-autoprefixer'),
-    // minifycss = require('gulp-minify-css'),
+    cleancss = require('gulp-clean-css'),
     jshint = require('gulp-jshint'),
     uglify = require('gulp-uglify'),
     rename = require('gulp-rename'),
-    del = require('del'),
     concat = require('gulp-concat'),
-    notify = require('gulp-notify'),
-    cache = require('gulp-cache'),
     plumber = require('gulp-plumber'),
     browserSync = require('browser-sync'),
-    cssnano = require('cssnano'),
-    cp = require('child_process'),
     changed = require('gulp-changed'),
     imagemin = require('gulp-imagemin'),
-    size = require('gulp-size'),
-    ghPages = require('gulp-gh-pages');
-
+    size = require('gulp-size');
 
 gulp.task('styles', function() {
-  gulp.src('./src/sass/**/*.scss')
+  gulp.src('src/sass/**/*.scss')
     .pipe(sass().on('error', sass.logError))
     .pipe(autoprefixer('last 2 version', 'safari 5', 'ie 8', 'ie 9', 'opera 12.1', 'ios 6', 'android 4'))
     .pipe(gulp.dest('public/stylesheets'))
     .pipe(rename({suffix: '.min'}))
-    //.pipe(minifycss())
-    //.pipe(cssnano())
-    .pipe(gulp.dest('public/stylesheets'))
-    .pipe(browserSync.reload({stream:true}));
+    .pipe(cleancss({compatibility: 'ie8'}))
+    .pipe(gulp.dest('public/stylesheets'));
+    // .pipe(browserSync.reload({stream:true}));
 });
 
 gulp.task('scripts', function() {
-  return gulp.src(['./src/javascripts/**/*.js'])
+  return gulp.src(['src/javascripts/**/*.js'])
     //.pipe(jshint('.jshintrc'))
     //.pipe(jshint.reporter('default'))
     .pipe(plumber())
@@ -40,8 +32,8 @@ gulp.task('scripts', function() {
     .pipe(gulp.dest('public/javascripts'))
     .pipe(rename({suffix: '.min'}))
     .pipe(uglify())
-    .pipe(gulp.dest('public/javascripts'))
-    .pipe(browserSync.reload({stream:true}));
+    .pipe(gulp.dest('public/javascripts'));
+    // .pipe(browserSync.reload({stream:true}));
 });
 
 // Optimizes the images that exists
@@ -59,22 +51,17 @@ gulp.task('images', function () {
 });
 
 gulp.task('html', function() {
-  gulp.src('./src/**/*.html')
+  gulp.src('src/**/*.html')
     .pipe(gulp.dest('public/'))
 });
 
 gulp.task('browser-sync', ['styles', 'scripts'], function() {
   browserSync({
     server: {
-      baseDir: "./public/",
+      baseDir: "public/",
       injectChanges: true // this is new
     }
   });
-});
-
-gulp.task('deploy', function() {
-  return gulp.src('./public/**/*')
-    .pipe(ghPages());
 });
 
 gulp.task('watch', function() {
@@ -90,6 +77,6 @@ gulp.task('watch', function() {
 });
 
 gulp.task('default', function() {
-    gulp.start('styles', 'scripts', 'images', 'html', 'browser-sync', 'watch');
-    // gulp.start('styles', 'scripts', 'images', 'html', 'watch');
+    // gulp.start('styles', 'scripts', 'images', 'html', 'browser-sync', 'watch');
+    gulp.start('styles', 'scripts', 'images', 'html', 'watch');
 });
