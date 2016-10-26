@@ -34,7 +34,7 @@ input[type="text"] {
     outline: 0; }
 
 /* –––––––––––––––––––––––––––––––––––––––––––––––––– */
-form, #crawl-status, .broken-link-data {
+form, #crawl-status, #crawl-options, .broken-link-data {
   max-width: 630px;
   width: 90vw; }
 
@@ -79,7 +79,7 @@ form {
   form .url-input {
     width: 100%;
     margin: 0; }
-  form .url-submit {
+  form .url-submit, form .btn-options {
     width: 26px;
     height: 26px;
     line-height: 26px;
@@ -91,24 +91,19 @@ form {
     border-radius: 50%;
     border: none;
     background-color: transparent; }
-    form .url-submit svg {
+    form .url-submit svg, form .btn-options svg {
       height: 26px;
       width: 16px;
       vertical-align: middle;
       fill: #888888; }
-    form .url-submit:hover {
+    form .url-submit:hover, form .btn-options:hover {
       background-color: #eee; }
-    form .url-submit:focus {
+    form .url-submit:focus, form .btn-options:focus {
       outline: none; }
+  form .btn-options {
+    margin-left: -54px; }
 
-#crawl-status {
-  z-index: 98;
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
+#crawl-status, #crawl-options {
   background-color: white;
   margin: -32px 0 24px 0;
   box-sizing: border-box;
@@ -118,21 +113,33 @@ form {
   -webkit-animation: status-slide-in 0.8s;
           animation: status-slide-in 0.8s; }
 
-@-webkit-keyframes status-slide-in {
-  from {
-    opacity: 0;
-    margin-top: -80px; }
-  to {
-    opacity: 1;
-    margin-top: -32px; } }
+#crawl-status {
+  z-index: 97;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center; }
 
-@keyframes status-slide-in {
-  from {
-    opacity: 0;
-    margin-top: -80px; }
-  to {
-    opacity: 1;
-    margin-top: -32px; } }
+#crawl-options {
+  border-color: #41D3BD;
+  z-index: 98;
+  -webkit-animation: none;
+          animation: none; }
+  #crawl-options .option-header {
+    font-weight: bold;
+    font-size: 0.7em;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 4px; }
+    #crawl-options .option-header:nth-of-type(n+2) {
+      margin-top: 12px; }
+  #crawl-options label {
+    display: block;
+    font-size: 0.9em; }
+  #crawl-options input {
+    margin-right: 5px; }
 
 #crawl-summary {
   display: -webkit-box;
@@ -167,6 +174,44 @@ form {
       padding-left: 16px;
       margin: 0; }
 
+#status-icon {
+  margin-right: 15px; }
+  #status-icon svg {
+    vertical-align: middle;
+    height: 20px;
+    width: 20px; }
+
+#spinner {
+  height: 15px;
+  width: 15px;
+  -webkit-animation: rotate 0.8s infinite linear;
+          animation: rotate 0.8s infinite linear;
+  border: 3px solid #6f6f6f;
+  border-right-color: transparent;
+  border-radius: 50%; }
+
+.tick {
+  stroke: #6f6f6f;
+  -webkit-animation: tick-animate 1s;
+          animation: tick-animate 1s; }
+
+/* Animations
+–––––––––––––––––––––––––––––––––––––––––––––––––– */
+@-webkit-keyframes status-slide-in {
+  from {
+    opacity: 0;
+    margin-top: -80px; }
+  to {
+    opacity: 1;
+    margin-top: -32px; } }
+@keyframes status-slide-in {
+  from {
+    opacity: 0;
+    margin-top: -80px; }
+  to {
+    opacity: 1;
+    margin-top: -32px; } }
+
 @-webkit-keyframes slide-in {
   from {
     opacity: 0;
@@ -183,23 +228,6 @@ form {
     opacity: 1;
     margin-top: 0; } }
 
-#status-icon {
-  margin-right: 15px; }
-  #status-icon svg {
-    vertical-align: middle;
-    height: 20px;
-    width: 20px; }
-
-/* Spinner */
-#spinner {
-  height: 15px;
-  width: 15px;
-  -webkit-animation: rotate 0.8s infinite linear;
-          animation: rotate 0.8s infinite linear;
-  border: 3px solid #6f6f6f;
-  border-right-color: transparent;
-  border-radius: 50%; }
-
 @-webkit-keyframes rotate {
   0% {
     -webkit-transform: rotate(0deg);
@@ -215,12 +243,6 @@ form {
   100% {
     -webkit-transform: rotate(360deg);
             transform: rotate(360deg); } }
-
-/* Tick */
-.tick {
-  stroke: #6f6f6f;
-  -webkit-animation: tick-animate 1s;
-          animation: tick-animate 1s; }
 
 @-webkit-keyframes tick-animate {
   from {

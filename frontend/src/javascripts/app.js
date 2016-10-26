@@ -70,19 +70,53 @@ function reset() {
   hide("tick");
   show("spinner");
   var links = document.getElementById("broken-links");
-  while (links.firstChild) {
+  while (links && links.firstChild) {
     links.removeChild(links.firstChild);
   }
 }
+
 var optionsShown = false;
 function showOptions() {
+  var settingsIcon = document.getElementById("settings-path");
   if (optionsShown) {
     hide("crawl-options");
+    settingsIcon.style.fill = "";
     optionsShown = false;
   } else {
     show("crawl-options");
+    settingsIcon.style.fill = "#41D3BD";
     optionsShown = true;
   }
+}
+
+function getOptions() {
+  var options = {};
+  var acceptedUrlsRadios = document.getElementsByName("accepted-urls");
+  var crawlDurationRadios = document.getElementsByName("crawl-duration");
+  var mediaTypesCheckboxes = document.getElementsByName("media-types");
+
+  for (var i=0, length=acceptedUrlsRadios.length; i<length; i++) {
+    if (acceptedUrlsRadios[i].checked) {
+      options.acceptedUrls = acceptedUrlsRadios[i].value;
+      break;
+    }
+  }
+
+  for (var i=0, length=crawlDurationRadios.length; i<length; i++) {
+    if (crawlDurationRadios[i].checked) {
+      options.crawlDuration = crawlDurationRadios[i].value;
+      break;
+    }
+  }
+
+  options.mediaTypes = [];
+  for (var i=0, length=mediaTypesCheckboxes.length; i<length; i++) {
+    if (mediaTypesCheckboxes[i].checked) {
+      options.mediaTypes.push(mediaTypesCheckboxes[i].value);
+    }
+  }
+
+  return options;
 }
 
 window.addEventListener("load", function () {
@@ -98,7 +132,8 @@ window.addEventListener("load", function () {
 
     reset();
     ws.send(JSON.stringify({
-      "url": document.getElementById("url").value
+      "url": document.getElementById("url").value,
+      "options": getOptions()
     }));
   });
 
