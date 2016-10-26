@@ -74,6 +74,16 @@ function reset() {
     links.removeChild(links.firstChild);
   }
 }
+var optionsShown = false;
+function showOptions() {
+  if (optionsShown) {
+    hide("crawl-options");
+    optionsShown = false;
+  } else {
+    show("crawl-options");
+    optionsShown = true;
+  }
+}
 
 window.addEventListener("load", function () {
   var form = document.getElementById("url-form");

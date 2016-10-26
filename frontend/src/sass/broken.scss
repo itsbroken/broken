@@ -90,7 +90,7 @@ form {
     margin: 0;
   }
 
-  .url-submit {
+  .url-submit, .btn-options {
     $width: 26px;
     width: $width;
     height: $width;
@@ -116,11 +116,15 @@ form {
       outline: none;
     }
   }
+
+  .btn-options {
+    margin-left: -54px;
+  }
 }
 
-#crawl-status {
+#crawl-status, #crawl-options {
   @extend %centered-main-column;
-  z-index: 98;
+  z-index: 97;
   display: flex;
   align-items: center;
   background-color: white;
@@ -130,6 +134,14 @@ form {
   border-radius: 4px;
   padding: 20px 20px 14px;
   animation: status-slide-in 0.8s;
+}
+
+#crawl-options {
+  z-index: 98;
+  p {
+    font-size: 0.9em;
+    margin: 0;
+  }
 }
 
 @keyframes status-slide-in {

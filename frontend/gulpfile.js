@@ -27,8 +27,8 @@ gulp.task('styles', function() {
     .pipe(rename({suffix: '.min'}))
     //.pipe(minifycss())
     //.pipe(cssnano())
-    .pipe(gulp.dest('public/stylesheets'));
-    // .pipe(browserSync.reload({stream:true}));
+    .pipe(gulp.dest('public/stylesheets'))
+    .pipe(browserSync.reload({stream:true}));
 });
 
 gulp.task('scripts', function() {
@@ -40,8 +40,8 @@ gulp.task('scripts', function() {
     .pipe(gulp.dest('public/javascripts'))
     .pipe(rename({suffix: '.min'}))
     .pipe(uglify())
-    .pipe(gulp.dest('public/javascripts'));
-    // .pipe(browserSync.reload({stream:true}));
+    .pipe(gulp.dest('public/javascripts'))
+    .pipe(browserSync.reload({stream:true}));
 });
 
 // Optimizes the images that exists
@@ -90,6 +90,6 @@ gulp.task('watch', function() {
 });
 
 gulp.task('default', function() {
-    // gulp.start('styles', 'scripts', 'images', 'html', 'browser-sync', 'watch');
-    gulp.start('styles', 'scripts', 'images', 'html', 'watch');
+    gulp.start('styles', 'scripts', 'images', 'html', 'browser-sync', 'watch');
+    // gulp.start('styles', 'scripts', 'images', 'html', 'watch');
 });

@@ -7,12 +7,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   
   <link href="https://fonts.googleapis.com/css?family=Asap:400,700|Montserrat:700" rel="stylesheet">
-  <link rel="stylesheet" href="{{ static_url('stylesheets/normalize.min.css') }}">
+  <!--<link rel="stylesheet" href="{{ static_url('stylesheets/normalize.min.css') }}">
   <link rel="stylesheet" href="{{ static_url('stylesheets/broken.min.css') }}">
-  <script src="{{ static_url('javascripts/app.min.js') }}"></script>
-  <!--<link rel="stylesheet" href="stylesheets/normalize.min.css">
+  <script src="{{ static_url('javascripts/app.min.js') }}"></script>-->
+  <link rel="stylesheet" href="stylesheets/normalize.min.css">
   <link rel="stylesheet" href="stylesheets/broken.min.css">
-  <script src="javascripts/app.min.js"></script>-->
+  <script src="javascripts/app.min.js"></script>
 
 </head>
 <body>
@@ -23,8 +23,15 @@
       <button type="submit" class="url-submit">
         <svg xmlns="http://www.w3.org/2000/svg" height="26" viewBox="0 0 512 512" width="16"><path d="m445 386.7l-84.8-85.9c13.8-24.1 21-50.9 21-77.9 0-87.6-71.2-158.9-158.6-158.9s-158.6 71.3-158.6 158.9 71.2 158.9 158.6 158.9c27.9 0 55.5-7.7 80.1-22.4l84.4 85.6c1.9 1.9 4.6 3.1 7.3 3.1s5.4-1.1 7.3-3.1l43.3-43.8c4-4.1 4-10.5 0-14.5zm-222.4-260.8c53.4 0 96.8 43.5 96.8 97s-43.4 97-96.8 97-96.8-43.5-96.8-97 43.4-97 96.8-97z"/></svg>
       </button>
+      <button type="button" onclick="showOptions()" class="btn-options">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 512 512" xml:space="preserve"><path d="M448 294.4v-76.8h-42.8c-3.4-14.4-8.9-28-16.1-40.5l29.8-29.7 -54.3-54.3 -29.1 29.1c-12.6-7.7-26.4-13.5-41.1-17.3V64h-76.8v40.9c-14.7 3.8-28.5 9.7-41.1 17.3l-29.1-29.1 -54.3 54.3 29.8 29.7c-7.2 12.5-12.6 26.1-16.1 40.5H64v76.8h44.1c3.8 13.7 9.5 26.6 16.7 38.6l-31.7 31.7 54.3 54.3 32.3-32.3c11.7 6.8 24.5 11.9 37.9 15.4v46h76.8v-46c13.5-3.5 26.2-8.6 37.9-15.4l32.3 32.3 54.3-54.3L387.3 333c7.2-11.9 12.9-24.8 16.7-38.6H448zM256 309.8c-29.7 0-53.7-24.1-53.7-53.8s24-53.8 53.7-53.8 53.8 24.1 53.8 53.8S285.7 309.8 256 309.8z"/></svg>
+      </button>
     </form>
-    <div id="crawl-status" class="hidden">
+    <div id="crawl-options" class="hidden">
+      <input type=radio name="base-url-option" checked> Option 1 
+      <input type=radio name="base-url-option"> Option 2 
+    </div>
+    <div id="crawl-status">
       <div id="status-icon">
         <div id="spinner"></div>
         <div id="tick" class="hidden">
