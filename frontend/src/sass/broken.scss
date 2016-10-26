@@ -39,6 +39,7 @@ $grey: #555;
 $light-grey: lighten($grey, 10%);
 $lightest-grey: lighten($grey, 20%);
 $border-color: #D1D1D1;
+$base-color: #41D3BD;
 
 %centered-main-column {
   max-width: 0.9 * $max-width;
@@ -88,9 +89,10 @@ form {
   .url-input {
     width: 100%;
     margin: 0;
+    padding-right: 70px;
   }
 
-  .url-submit {
+  .url-submit, .btn-options {
     $width: 26px;
     width: $width;
     height: $width;
@@ -116,13 +118,14 @@ form {
       outline: none;
     }
   }
+
+  .btn-options {
+    margin-left: -54px;
+  }
 }
 
-#crawl-status {
+%centered-info {
   @extend %centered-main-column;
-  z-index: 98;
-  display: flex;
-  align-items: center;
   background-color: white;
   margin: -32px 0 24px 0;
   box-sizing: border-box;
@@ -132,15 +135,37 @@ form {
   animation: status-slide-in 0.8s;
 }
 
-@keyframes status-slide-in {
-  from {
-    opacity: 0;
-    margin-top: -80px;
-  }
+#crawl-status {
+  @extend %centered-info;
+  z-index: 97;
+  display: flex;
+  align-items: center;
+}
 
-  to {
-    opacity: 1;
-    margin-top: -32px;
+#crawl-options {
+  @extend %centered-info;
+  border-color: $base-color;
+  z-index: 98;
+  animation: none;
+
+  .option-header {
+    font-weight: bold;
+    font-size: 0.7em;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 4px;
+
+    &:nth-of-type(n+2) {
+      margin-top: 12px;
+    }
+  }
+  label {
+    display: block;
+    font-size: 0.9em;
+    word-break: break-all;
+  }
+  input {
+    margin-right: 10px;
   }
 }
 
@@ -183,18 +208,6 @@ form {
   }
 }
 
-@keyframes slide-in {
-  from {
-    opacity: 0;
-    margin-top: -80px;
-  }
-
-  to {
-    opacity: 1;
-    margin-top: 0;
-  }
-}
-
 #status-icon {
   margin-right: 15px;
   svg {
@@ -203,8 +216,6 @@ form {
     width: 20px;
   }
 }
-
-/* Spinner */
 
 #spinner {
   height: 15px;
@@ -216,16 +227,39 @@ form {
   border-radius: 50%;
 }
 
-@keyframes rotate {
-  0%    { transform: rotate(0deg); }
-  100%  { transform: rotate(360deg); }
-}
-
-
-/* Tick */
 .tick {
   stroke: $light-grey;
   animation: tick-animate 1s;
+}
+
+
+/* Animations
+–––––––––––––––––––––––––––––––––––––––––––––––––– */
+@keyframes status-slide-in {
+  from {
+    opacity: 0;
+    margin-top: -80px;
+  }
+  to {
+    opacity: 1;
+    margin-top: -32px;
+  }
+}
+
+@keyframes slide-in {
+  from {
+    opacity: 0;
+    margin-top: -80px;
+  }
+  to {
+    opacity: 1;
+    margin-top: 0;
+  }
+}
+
+@keyframes rotate {
+  0%    { transform: rotate(0deg); }
+  100%  { transform: rotate(360deg); }
 }
 
 @keyframes tick-animate {
