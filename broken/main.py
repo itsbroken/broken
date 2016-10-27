@@ -22,13 +22,13 @@ workers_store = {}
 
 
 @gen.coroutine
-def manager(index, base_url, opts):
-    logging.info("#{} - New crawl request: {} {}".format(index, base_url, opts))
+def manager(index, initial_url, opts):
+    logging.info("#{} - New crawl request: {} {}".format(index, initial_url, opts))
     start_time = time.time()
 
     store = Store(index, opts)
     stores[index] = store
-    store.queue.put(base_url)
+    store.queue.put(initial_url)
 
     # Start all workers
     workers = [Worker(store) for _ in range(num_workers)]
@@ -44,7 +44,7 @@ def manager(index, base_url, opts):
 
     store.complete()
     logging.info("#{0} - Crawled {1} for {2:.2f} seconds, found {3} URLs, "
-                 "{4} broken links".format(index, base_url,
+                 "{4} broken links".format(index, store.base_url,
                                            time.time() - start_time,
                                            len(store.crawled),
                                            store.get_num_broken_links()))

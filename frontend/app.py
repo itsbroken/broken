@@ -91,32 +91,38 @@ class MainWebSocketHandler(websocket.WebSocketHandler):
 
     @gen.coroutine
     def on_message(self, message):
-        data = json.loads(message)
         logging.info(message)
+
         parsed_message = MainWebSocketHandler.parse_message(message)
         if not parsed_message:
             logging.info("Invalid request; ignoring")
+            return
+
         url = parsed_message[0]
         opts = parsed_message[1]
-        logging.info("New crawl request: {} {}".format(url, opts))
 
-        if utils.is_valid_url(url):
-            global counter
-            counter += 1
-            self.index = counter
+        if not utils.is_valid_url(url):
+            logging.info("Invalid URL; ignoring")
+            return
 
-            ctx = zmq.Context.instance()
+        global counter
+        counter += 1
+        self.index = counter
 
-            status_socket = ctx.socket(zmq.SUB)
-            status_socket.connect('tcp://127.0.0.1:5556')
-            status_socket.setsockopt_string(zmq.SUBSCRIBE, str(self.index))
+        logging.info("#{} - New crawl request: {} {}".format(self.index, url, opts))
 
-            status_stream = zmqstream.ZMQStream(status_socket)
-            status_stream.on_recv(self.handle_reply)
+        ctx = zmq.Context.instance()
 
-            s = ctx.socket(zmq.PUSH)
-            s.connect('tcp://127.0.0.1:5555')
-            s.send_pyobj((self.index, url, opts))
+        status_socket = ctx.socket(zmq.SUB)
+        status_socket.connect('tcp://127.0.0.1:5556')
+        status_socket.setsockopt_string(zmq.SUBSCRIBE, str(self.index))
+
+        status_stream = zmqstream.ZMQStream(status_socket)
+        status_stream.on_recv(self.handle_reply)
+
+        s = ctx.socket(zmq.PUSH)
+        s.connect('tcp://127.0.0.1:5555')
+        s.send_pyobj((self.index, url, opts))
 
     def handle_reply(self, data):
         msg = ""
