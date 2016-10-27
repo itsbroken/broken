@@ -76,12 +76,18 @@ class MainWebSocketHandler(websocket.WebSocketHandler):
         media_types = opts.get("mediaTypes")
         if not isinstance(media_types, list):
             return False
+        check_images = False
+        check_videos = False
         for media_type in media_types:
-            if media_type not in ["0", "1"]:
+            if media_type == "0":
+                check_images = True
+            elif media_type == "1":
+                check_videos = True
+            else:
                 return False
-        media_types = [int(media_type) for media_type in media_types]
 
-        opts = {"limit_to_url": limit_to_url, "crawl_duration": crawl_duration, "media_types": media_types}
+        opts = {"limit_to_url": limit_to_url, "crawl_duration": crawl_duration,
+                "check_images": check_images, "check_videos": check_videos}
         return url, opts
 
     def open(self):

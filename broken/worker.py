@@ -122,7 +122,7 @@ class Worker:
                     self.store.base_url_parsed = urlparse(effective_url)
 
                 # Check for links to Content Hosting Sites that do not fully follow HTTP Error Codes internally
-                if not other_parsers.is_special_link(response):
+                if not self.store.opts["check_images"] or not other_parsers.is_special_link(response):
                     yield from self.queue_additional_links(url, response)
 
             except httpclient.HTTPError as e:
