@@ -22,10 +22,11 @@ workers_store = {}
 
 
 @gen.coroutine
-def manager(index, base_url):
+def manager(index, base_url, opts):
+    logging.info("#{} - New crawl request: {} {}".format(index, base_url, opts))
     start_time = time.time()
 
-    store = Store(index)
+    store = Store(index, opts)
     stores[index] = store
     store.queue.put(base_url)
 
@@ -35,15 +36,15 @@ def manager(index, base_url):
 
     # Wait till the queue is empty
     try:
-        yield store.queue.join(timeout=timedelta(seconds=60))
+        yield store.queue.join(timeout=timedelta(seconds=opts["crawl_duration"]))
     except gen.TimeoutError:  # TEMP: timeout at 60 seconds
         store.timed_out = True
         for worker in workers:
             worker.running = False
 
     store.complete()
-    logging.info("Crawled {0} for {1:.2f} seconds, found {2} URLs, "
-                 "{3} broken links".format(base_url,
+    logging.info("#{0} - Crawled {1} for {2:.2f} seconds, found {3} URLs, "
+                 "{4} broken links".format(index, base_url,
                                            time.time() - start_time,
                                            len(store.crawled),
                                            store.get_num_broken_links()))
@@ -51,7 +52,7 @@ def manager(index, base_url):
 
 @gen.coroutine
 def handle_request(data):
-    index, msg = pickle.loads(data[0])
+    index, msg, opts = pickle.loads(data[0])
     if msg is None:
         for worker in workers_store.get(index, []):
             worker.running = False
@@ -62,13 +63,13 @@ def handle_request(data):
                     break
                 store.queue.task_done()
             except ValueError:
-                logging.info('Crawl aborted')
+                logging.info('#{} - Crawl aborted'.format(index))
                 break
     else:
-        yield manager(index, msg)
+        yield manager(index, msg, opts)
 
 if __name__ == '__main__':
-    Store(0)  # initialise status socket
+    Store(0, None)  # initialise status socket
     ctx = zmq.Context.instance()
     receiver = ctx.socket(zmq.PULL)
     receiver.bind('tcp://127.0.0.1:5555')

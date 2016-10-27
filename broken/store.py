@@ -16,7 +16,6 @@ class Status(Enum):
 
 class Store:
     status_socket_created = False
-    timed_out = False
 
     @classmethod
     def initialize(cls):
@@ -26,12 +25,14 @@ class Store:
             cls.status_socket.bind('tcp://127.0.0.1:5556')
             cls.status_socket_created = True
 
-    def __init__(self, index):
+    def __init__(self, index, opts):
         Store.initialize()
 
         self.index = index
+        self.opts = opts
         self.base_url = None
-        self.base_host = None
+        self.base_url_parsed = None
+        self.timed_out = False
         res = {"type": Status.progress.value, "data": "crawling"}
         self.message_ui(json.dumps(res))
 

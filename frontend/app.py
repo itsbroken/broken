@@ -48,6 +48,42 @@ class MainHandler(web.RequestHandler):
 class MainWebSocketHandler(websocket.WebSocketHandler):
     index = None
 
+    @staticmethod
+    def parse_message(message):
+        try:
+            data = json.loads(message)
+        except json.JSONDecodeError:
+            return False
+
+        url = data.get("url")
+        if not isinstance(url, str):
+            return False
+
+        opts = data.get("options")
+        if not opts:
+            return False
+
+        accepted_urls = opts.get("acceptedUrls")
+        if accepted_urls not in ["0", "1"]:
+            return False
+        limit_to_url = int(accepted_urls) == 1
+
+        crawl_duration = opts.get("crawlDuration")
+        if crawl_duration not in ["0", "1", "2"]:
+            return False
+        crawl_duration = (30, 60, 300)[int(crawl_duration)]
+
+        media_types = opts.get("mediaTypes")
+        if not isinstance(media_types, list):
+            return False
+        for media_type in media_types:
+            if media_type not in ["0", "1"]:
+                return False
+        media_types = [int(media_type) for media_type in media_types]
+
+        opts = {"limit_to_url": limit_to_url, "crawl_duration": crawl_duration, "media_types": media_types}
+        return url, opts
+
     def open(self):
         ip = self.request.remote_ip
         ua = self.request.headers["User-Agent"]
@@ -56,8 +92,13 @@ class MainWebSocketHandler(websocket.WebSocketHandler):
     @gen.coroutine
     def on_message(self, message):
         data = json.loads(message)
-        url = data["url"]
-        logging.info("New crawl request: {}".format(url))
+        logging.info(message)
+        parsed_message = MainWebSocketHandler.parse_message(message)
+        if not parsed_message:
+            logging.info("Invalid request; ignoring")
+        url = parsed_message[0]
+        opts = parsed_message[1]
+        logging.info("New crawl request: {} {}".format(url, opts))
 
         if utils.is_valid_url(url):
             global counter
@@ -75,7 +116,7 @@ class MainWebSocketHandler(websocket.WebSocketHandler):
 
             s = ctx.socket(zmq.PUSH)
             s.connect('tcp://127.0.0.1:5555')
-            s.send_pyobj((self.index, url))
+            s.send_pyobj((self.index, url, opts))
 
     def handle_reply(self, data):
         msg = ""
@@ -100,7 +141,7 @@ class MainWebSocketHandler(websocket.WebSocketHandler):
             ctx = zmq.Context.instance()
             s = ctx.socket(zmq.PUSH)
             s.connect('tcp://127.0.0.1:5555')
-            s.send_pyobj((self.index, None))
+            s.send_pyobj((self.index, None, None))
 
     def check_origin(self, origin):  # TODO: check origin properly
         return True

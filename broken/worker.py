@@ -77,8 +77,17 @@ class Worker:
             # Extract links
             found_links = html_parser.extract_links(effective_url, response_body)
             for link in found_links:
-                link_host = urlparse(link).netloc.lower()
-                if link_host == self.store.base_host:  # Only allow links that stem from the base host
+                link_parsed = urlparse(link)
+                base_parsed = self.store.base_url_parsed
+                if self.store.opts["limit_to_url"]:
+                    is_link_allowed = (link_parsed.netloc.lower() == base_parsed.netloc.lower() and
+                                       link_parsed.path == base_parsed.path and
+                                       link_parsed.params == base_parsed.params and
+                                       link_parsed.query == base_parsed.query)
+                else:
+                    is_link_allowed = link_parsed.netloc.lower() == base_parsed.netloc.lower()
+
+                if is_link_allowed:  # Only allow links that stem from the base host
                     self.store.parent_links[link] = url  # Keep track of the parent of the found link
                     if link in self.store.broken_links:  # Add links that lead to this broken link
                         self.store.add_parent_for_broken_link(link, url)
@@ -110,7 +119,7 @@ class Worker:
 
                 if not self.store.base_url:
                     self.store.base_url = effective_url
-                    self.store.base_host = urlparse(effective_url).netloc.lower()
+                    self.store.base_url_parsed = urlparse(effective_url)
 
                 # Check for links to Content Hosting Sites that do not fully follow HTTP Error Codes internally
                 if not other_parsers.is_special_link(response):
@@ -118,12 +127,12 @@ class Worker:
 
             except httpclient.HTTPError as e:
                 if e.code in range(400, 500):
-                    logging.info("{}, {}".format(e.code, url))
+                    logging.info("#{} - {}, {}".format(self.store.index, e.code, url))
                     self.store.add_broken_link(url)
                 else:
-                    logging.info("{} {}".format(e, url))
+                    logging.info("#{} - {} {}".format(self.store.index, e, url))
             except Exception as e:
-                logging.warning("Exception: {}, {}".format(e, url), exc_info=1)
+                logging.warning("#{} - Exception: {}, {}".format(self.store.index, e, url), exc_info=1)
             finally:
                 if url != self.store.base_url and url in self.store.parent_links:
                     del self.store.parent_links[url]  # Remove entry in parent link to save space
