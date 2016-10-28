@@ -5,19 +5,18 @@ from bs4 import BeautifulSoup
 from urllib.parse import urlparse
 
 
-def is_special_link(response):
+def assert_valid_image_link(response):
     url = response.effective_url
 
     if is_imageshack_link(url):
         assert_valid_imageshack_link(response)
-        return True
 
     elif is_tinypic_link(url):
         assert_valid_tinypic_link(response)
-        return True
 
-    else:
-        return False
+
+def assert_valid_video_link(response):
+    pass  # TODO
 
 
 def is_imageshack_link(url):
@@ -71,7 +70,5 @@ def assert_valid_tinypic_link(response):
     :return:
     """
 
-    effective_url = response.effective_url
-
-    if "404.gif" in effective_url:
+    if urlparse(response.effective_url).path == "/images/404.gif":
         raise httpclient.HTTPError(code=404)

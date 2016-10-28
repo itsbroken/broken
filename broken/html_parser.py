@@ -3,22 +3,28 @@
 import re
 from bs4 import BeautifulSoup, SoupStrainer
 from urllib.parse import urljoin, urldefrag, quote
+from link import Link, LinkType
 
 
-def extract_links(url, response_body):
+def extract_links(url, response_body, include_images, include_videos):
     """
     Extract all links from the response body
 
     :param url: URL of the response
     :param response_body: body of the HTTP response
-    :return: set of links that were found
+    :param include_images: whether to include image links
+    :param include_videos: whether to include video links
+    :return: set of Links that were found
     """
     if response_body is None:
         return []
 
     found_links = set()
     extract_href_links(found_links, url, response_body)
-    extract_img_src_links(found_links, url, response_body)
+    if include_images:
+        extract_img_src_links(found_links, url, response_body)
+    if include_videos:
+        pass  # TODO
 
     return found_links
 
@@ -31,16 +37,16 @@ def extract_href_links(found_links, url, response_body):
         break
 
     for found_link in BeautifulSoup(response_body, "html.parser", parse_only=SoupStrainer('a', href=True)):
-        link = found_link["href"].strip()
-        if re.match(r'javascript:|mailto:', link):
+        a_href = found_link["href"].strip()
+        if re.match(r'javascript:|mailto:|tel:', a_href):
             continue
-        found_links.add(normalize_url(base_href, link))
+        found_links.add(Link(normalize_url(base_href, a_href), LinkType.regular))
 
 
 def extract_img_src_links(found_links, url, response_body):
     for found_img in BeautifulSoup(response_body, "html.parser", parse_only=SoupStrainer('img', src=True)):
         img_src = found_img["src"].strip()
-        found_links.add(normalize_url(url, img_src))
+        found_links.add(Link(normalize_url(url, img_src), LinkType.image))
 
 
 def normalize_url(parent_link, found_link):

@@ -41,7 +41,7 @@ class Store:
         self.processing = set()
         self.crawled = set()
         self.broken_links = {}
-        self.parent_links = {}
+        self.parent_urls = {}
 
     def message_ui(self, message, force=False):
         if not self.timed_out or force:
@@ -58,26 +58,19 @@ class Store:
 
     def add_broken_link(self, link):
         index = self.get_num_broken_links() + 1
-        parent = self.parent_links.get(link, link)
+        parent = self.parent_urls.get(link.url, link.url)
         self.broken_links[link] = {"index": index, "parents": {parent}}
         res = {"type": Status.broken_links.value,
-               "data": [{"index": index, "link": link, "parents": [parent]}]}
+               "data": [{"index": index, "link": link.url, "type": link.type.value, "parents": [parent]}]}
         self.message_ui(json.dumps(res))
 
-    def add_parent_for_broken_link(self, broken_link, parent_link):
+    def add_parent_for_broken_link(self, broken_link, parent_url):
         details = self.broken_links[broken_link]
-        details["parents"].add(parent_link)
+        details["parents"].add(parent_url)
         res = {"type": Status.broken_links.value,
-               "data": [{"index": details["index"], "link": broken_link, "parents": [parent_link]}]}
+               "data": [{"index": details["index"], "link": broken_link.url, "type": broken_link.type.value,
+                         "parents": [parent_url]}]}
         self.message_ui(json.dumps(res))
-
-    def get_formatted_broken_links(self):
-        res = []
-        for broken_link, details in self.broken_links.items():
-            index = details["index"]
-            parent_pages = details["parents"]
-            res.append({"index": index, "link": broken_link, "parents": list(parent_pages)})
-        return json.dumps(res)
 
     def complete(self):
         res = {"type": Status.progress.value, "data": "done"}
