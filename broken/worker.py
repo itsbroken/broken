@@ -1,11 +1,12 @@
-from tornado import gen, httpclient
-from urllib.parse import urlparse
 import utils
 import html_parser
 import other_parsers
-
 import logging
 import sys
+from tornado import gen, httpclient
+from urllib.parse import urlparse
+from link import Link
+
 logging.basicConfig(stream=sys.stdout, level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -29,29 +30,6 @@ class Worker:
             yield self.process_url()
 
     @gen.coroutine
-    def get_http_response_body_and_effective_url(self, url):
-
-        head_response = yield httpclient.AsyncHTTPClient().fetch(url, method='HEAD')
-
-        if head_response.effective_url not in self.store.crawled:
-            if 'Content-Type' in head_response.headers and \
-                    not utils.is_supported_content_type(head_response.headers['Content-Type']):
-                return None, None
-            else:
-                response = yield httpclient.AsyncHTTPClient().fetch(url, method='GET')
-                return response.body, response.effective_url
-        else:
-            return None, None
-
-    @gen.coroutine
-    def get_http_header_response(self, url):
-        head_response = yield httpclient.AsyncHTTPClient().fetch(url, method='HEAD')
-
-        if head_response.effective_url not in self.store.crawled:
-            return head_response
-        return None
-
-    @gen.coroutine
     def get_http_full_response(self, url):
         response = yield httpclient.AsyncHTTPClient().fetch(url, method='GET')
 
@@ -63,47 +41,47 @@ class Worker:
         """
         Parses through a HTML response for HTTP links
 
-        :param url: Base / Parent URL
+        :param url: Parent URL
         :param response: The Tornado HTTP Response Object from a fetch of the url
         :return:
         """
 
-        if 'Content-Type' in response.headers and \
-                utils.is_supported_content_type(response.headers['Content-Type']):
+        # Extract links
+        found_links = html_parser.extract_links(response.effective_url, response.body)
 
-            effective_url = response.effective_url
-            response_body = response.body
+        for link in found_links:
+            link_parsed = urlparse(link)
+            base_parsed = self.store.base_url_parsed
 
-            # Extract links
-            found_links = html_parser.extract_links(effective_url, response_body)
-            for link in found_links:
-                link_parsed = urlparse(link)
-                base_parsed = self.store.base_url_parsed
-                if self.store.opts["limit_to_url"]:
-                    is_link_allowed = (link_parsed.netloc.lower() == base_parsed.netloc.lower() and
-                                       link_parsed.path == base_parsed.path and
-                                       link_parsed.params == base_parsed.params and
-                                       link_parsed.query == base_parsed.query)
-                else:
-                    is_link_allowed = link_parsed.netloc.lower() == base_parsed.netloc.lower()
+            if self.store.opts["limit_to_url"]:
+                is_link_allowed = (link_parsed.netloc.lower() == base_parsed.netloc.lower() and
+                                   link_parsed.path == base_parsed.path and
+                                   link_parsed.params == base_parsed.params and
+                                   link_parsed.query == base_parsed.query)
+            else:
+                is_link_allowed = link_parsed.netloc.lower() == base_parsed.netloc.lower()
 
-                if is_link_allowed:  # Only allow links that stem from the base host
-                    self.store.parent_links[link] = url  # Keep track of the parent of the found link
-                    if link in self.store.broken_links:  # Add links that lead to this broken link
-                        self.store.add_parent_for_broken_link(link, url)
-                    yield self.store.queue.put(link)
+            if not is_link_allowed:
+                continue
+
+            self.store.parent_links[link] = url  # Keep track of the parent of the found link
+            if link in self.store.broken_links:  # Add links that lead to this broken link
+                self.store.add_parent_for_broken_link(link, url)
+            yield self.store.queue.put(Link(link))
 
     @gen.coroutine
     def process_url(self):
         """
         Gets a URL from the queue and checks if it needs to be handled by special rules or crawled as per normal
         """
-        url = yield self.store.queue.get()
+        link = yield self.store.queue.get()
+        url = link.url
+        link_type = link.type
         if not urlparse(url).scheme:
             url = 'http://' + url
+
         try:
-            if url in self.store.processing \
-                    or url in self.store.crawled:
+            if url in self.store.processing or url in self.store.crawled:
                 return
 
             # print("Processing {}".format(url))
@@ -121,6 +99,9 @@ class Worker:
                     self.store.base_url = effective_url
                     self.store.base_url_parsed = urlparse(effective_url)
 
+                if not utils.is_supported_content_type(response.headers.get('Content-Type')):
+                    return
+
                 # Check for links to Content Hosting Sites that do not fully follow HTTP Error Codes internally
                 if not self.store.opts["check_images"] or not other_parsers.is_special_link(response):
                     yield from self.queue_additional_links(url, response)
@@ -131,8 +112,10 @@ class Worker:
                     self.store.add_broken_link(url)
                 else:
                     logging.info("#{} - {} {}".format(self.store.index, e, url))
+
             except Exception as e:
                 logging.warning("#{} - Exception: {}, {}".format(self.store.index, e, url), exc_info=1)
+
             finally:
                 if url != self.store.base_url and url in self.store.parent_links:
                     del self.store.parent_links[url]  # Remove entry in parent link to save space

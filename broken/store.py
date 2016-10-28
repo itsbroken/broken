@@ -1,8 +1,9 @@
 # Stores the number of urls crawled, pages with their associated broken links, etc
+
 import zmq
+import json
 from zmq.eventloop import ioloop
 from tornado import queues
-import json
 from enum import Enum
 
 ioloop.install()

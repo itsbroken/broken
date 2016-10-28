@@ -1,16 +1,15 @@
 import zmq
+import json
+import logging
+import sys
+import os.path
 from zmq.eventloop import ioloop, zmqstream
 from tornado import websocket, web, ioloop, gen
 from tornado.options import define, options
-import json
-import os.path
 
-import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 from broken import utils, store
 
-import logging
-import sys
 logging.basicConfig(stream=sys.stdout, level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s')
 

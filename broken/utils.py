@@ -22,7 +22,7 @@ def is_supported_content_type(raw_content_type):
     :param raw_content_type: raw content type header data
     :return:
     """
-    if re.match(r'text/', raw_content_type):
+    if not raw_content_type or re.match(r'text/', raw_content_type):
         return True
     return False
 

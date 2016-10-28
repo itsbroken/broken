@@ -1,8 +1,8 @@
 # Parses html to extract and return links, images and videos
 
+import re
 from bs4 import BeautifulSoup, SoupStrainer
 from urllib.parse import urljoin, urldefrag, quote
-import re
 
 
 def extract_links(url, response_body):

@@ -1,18 +1,19 @@
 # Handles the multi-threaded crawling of sites
-import zmq
-from zmq.eventloop import ioloop, zmqstream
-import time
-from datetime import timedelta
-from tornado import gen, ioloop
-import pickle
 
+import zmq
+import time
+import pickle
 import logging
 import sys
-logging.basicConfig(stream=sys.stdout, level=logging.INFO,
-                    format='%(asctime)s - %(levelname)s - %(message)s')
-
+from zmq.eventloop import ioloop, zmqstream
+from datetime import timedelta
+from tornado import gen, ioloop
 from store import Store
 from worker import Worker
+from link import Link
+
+logging.basicConfig(stream=sys.stdout, level=logging.INFO,
+                    format='%(asctime)s - %(levelname)s - %(message)s')
 
 zmq.eventloop.ioloop.install()
 
@@ -28,7 +29,7 @@ def manager(index, initial_url, opts):
 
     store = Store(index, opts)
     stores[index] = store
-    store.queue.put(initial_url)
+    store.queue.put(Link(initial_url))
 
     # Start all workers
     workers = [Worker(store) for _ in range(num_workers)]
