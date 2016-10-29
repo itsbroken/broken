@@ -70,7 +70,7 @@ class Worker:
                     continue
 
             self.store.parent_urls[link.url] = parent_url  # Keep track of the parent of the found link
-            if link.url in self.store.broken_links:  # Add links that lead to this broken link
+            if link in self.store.broken_links:  # Add links that lead to this broken link
                 self.store.add_parent_for_broken_link(link, parent_url)
             else:
                 yield self.store.queue.put(link)
