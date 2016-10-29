@@ -1,5 +1,6 @@
 # Various Parsers for html returned by various Content-Hosting-Sites
 
+import utils
 from tornado import httpclient
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse
@@ -13,6 +14,9 @@ def assert_valid_image_link(response):
 
     elif is_tinypic_link(url):
         assert_valid_tinypic_link(response)
+
+    else:
+        assert_valid_generic_image_link(response)
 
 
 def assert_valid_video_link(response):
@@ -71,4 +75,9 @@ def assert_valid_tinypic_link(response):
     """
 
     if urlparse(response.effective_url).path == "/images/404.gif":
+        raise httpclient.HTTPError(code=404)
+
+
+def assert_valid_generic_image_link(response):
+    if not utils.is_image_content_type(response.headers.get('Content-Type')):
         raise httpclient.HTTPError(code=404)

@@ -14,7 +14,7 @@ def get_random_delay(min_time=0.01, max_time=0.1):
     return random.uniform(min_time, max_time)
 
 
-def is_supported_content_type(raw_content_type):
+def is_text_content_type(raw_content_type):
     """
     Checks if the raw content type retrieved from the header is of
     the appropriate type for more links to be found from the given URL
@@ -22,9 +22,11 @@ def is_supported_content_type(raw_content_type):
     :param raw_content_type: raw content type header data
     :return:
     """
-    if not raw_content_type or re.match(r'text/', raw_content_type):
-        return True
-    return False
+    return not raw_content_type or re.match(r'text/', raw_content_type)
+
+
+def is_image_content_type(raw_content_type):
+    return not raw_content_type or re.match(r'image/', raw_content_type)
 
 
 def is_valid_url(url):

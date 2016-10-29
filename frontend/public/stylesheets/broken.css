@@ -168,6 +168,12 @@ form {
     margin-top: -2px;
     font-size: 14px;
     line-height: 1.2; }
+    .broken-link-data .broken-link-url.url:before {
+      content: "[url] "; }
+    .broken-link-data .broken-link-url.image:before {
+      content: "[img] "; }
+    .broken-link-data .broken-link-url.video:before {
+      content: "[vid] "; }
   .broken-link-data .broken-link-parents {
     font-size: 12px; }
     .broken-link-data .broken-link-parents p {

@@ -46,7 +46,7 @@ class Worker:
         :return:
         """
 
-        if not utils.is_supported_content_type(response.headers.get('Content-Type')):
+        if not utils.is_text_content_type(response.headers.get('Content-Type')):
             return
         check_images = self.store.opts["check_images"]
         check_videos = self.store.opts["check_videos"]

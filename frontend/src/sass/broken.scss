@@ -195,6 +195,22 @@ form {
     margin-top: -2px;
     font-size: 14px;
     line-height: 1.2;
+
+    &.url {
+      &:before {
+        content: "[url] "
+      }
+    }
+    &.image {
+      &:before {
+        content: "[img] "
+      }
+    }
+    &.video {
+      &:before {
+        content: "[vid] "
+      }
+    }
   }
   .broken-link-parents {
     font-size: 12px;

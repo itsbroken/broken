@@ -2,9 +2,9 @@ from enum import Enum
 
 
 class LinkType(Enum):
-    regular = 0
-    image = 1
-    video = 2
+    regular = "url"
+    image = "image"
+    video = "video"
 
 
 class Link:
