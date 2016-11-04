@@ -19,12 +19,14 @@ def extract_links(url, response_body, include_images, include_videos):
     if response_body is None:
         return []
 
+    response_body = BeautifulSoup(response_body, "html.parser").prettify()
+
     found_links = set()
     extract_href_links(found_links, url, response_body)
     if include_images:
         extract_img_src_links(found_links, url, response_body)
     if include_videos:
-        pass  # TODO
+        extract_video_src_links(found_links, url, response_body)
 
     return found_links
 
@@ -44,9 +46,16 @@ def extract_href_links(found_links, url, response_body):
 
 
 def extract_img_src_links(found_links, url, response_body):
-    for found_img in BeautifulSoup(response_body, "html.parser", parse_only=SoupStrainer('img', src=True)):
+    for found_img in BeautifulSoup(response_body, "html.parser", parse_only=SoupStrainer(['img', 'embed'], src=True)):
         img_src = found_img["src"].strip()
         found_links.add(Link(normalize_url(url, img_src), LinkType.image))
+
+
+def extract_video_src_links(found_links, url, response_body):
+    for found_embed in BeautifulSoup(response_body, "html.parser", parse_only=SoupStrainer(['video', 'embed', 'iframe'],
+                                                                                           src=True)):
+        vid_src = found_embed["src"].strip()
+        found_links.add(Link(normalize_url(url, vid_src), LinkType.video))
 
 
 def normalize_url(parent_link, found_link):

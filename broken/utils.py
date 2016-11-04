@@ -29,6 +29,10 @@ def is_image_content_type(raw_content_type):
     return not raw_content_type or re.match(r'image/', raw_content_type)
 
 
+def is_video_content_type(raw_content_type):
+    return not raw_content_type or re.match(r'video/', raw_content_type)
+
+
 def is_valid_url(url):
     if not re.match(r'https?://', url):
         url = "http://" + url

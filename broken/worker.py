@@ -88,12 +88,12 @@ class Worker:
             if link in self.store.processing or link in self.store.crawled:
                 return
 
-            # print("Processing {}".format(url))
+            # print("Processing {}".format(link.url))
             self.store.processing.add(link)
 
             try:
                 response = yield self.get_http_full_response(link.url)
-                # print("Received {}".format(url))
+
                 if not response:
                     return
 
@@ -104,12 +104,15 @@ class Worker:
                     self.store.base_url_parsed = urlparse(effective_url)
 
                 if link.type is LinkType.regular:
+
                     yield from self.queue_additional_links(link.url, response)
 
                 elif link.type is LinkType.image:
+
                     other_parsers.assert_valid_image_link(response)
 
                 elif link.type is LinkType.video:
+
                     other_parsers.assert_valid_video_link(response)
 
             except httpclient.HTTPError as e:
