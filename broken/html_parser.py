@@ -2,7 +2,7 @@
 
 import re
 from bs4 import BeautifulSoup, SoupStrainer
-from urllib.parse import urljoin, urldefrag, quote
+from urllib.parse import urlparse, urljoin, urldefrag, quote
 from link import Link, LinkType
 
 
@@ -36,6 +36,8 @@ def extract_href_links(found_links, url, response_body):
 
     for base_link in BeautifulSoup(response_body, "html.parser", parse_only=SoupStrainer('base', href=True)):
         base_href = base_link["href"].strip()
+        if not urlparse(base_href).scheme:
+            base_href = normalize_url(url, base_href)
         break
 
     for found_link in BeautifulSoup(response_body, "html.parser", parse_only=SoupStrainer('a', href=True)):
