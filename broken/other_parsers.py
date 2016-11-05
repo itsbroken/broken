@@ -24,6 +24,7 @@ def assert_valid_image_link(response):
         assert_valid_generic_image_link(response)
 
 
+
 def assert_valid_generic_video_link(response):
     if not utils.is_video_content_type(response.headers.get('Content-Type')):
         raise httpclient.HTTPError(code=404)
@@ -35,8 +36,10 @@ def assert_valid_video_link(response):
 
     if is_youtube_link(url):
         assert_valid_youtube_link(response)
+    """
     else:
         assert_valid_generic_video_link(response)
+    """
 
 
 def is_imageshack_link(url):
