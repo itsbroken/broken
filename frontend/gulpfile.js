@@ -67,7 +67,7 @@ gulp.task('browser-sync', ['run-server'], function() {
     proxy: {target: 'localhost:8888', ws: true}
   });
 
-  gulp.start('watch');
+  gulp.start(['styles', 'scripts', 'images', 'watch']);
 });
 
 gulp.task('watch', function() {
