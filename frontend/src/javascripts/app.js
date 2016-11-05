@@ -34,8 +34,8 @@ function updateCrawlSummary(numCrawled, numBroken) {
 
 function updateBrokenLinkCard(link) {
   var brokenLinks = document.getElementById('broken-links');
-  var template =  "<div id='broken-link-{{index}}' class='broken-link-data'>" +
-                    "<p class='broken-link-url {{type}}'>{{link}}</p>" +
+  var template =  "<div id='broken-link-{{index}}' class='broken-link-data {{type}}'>" +
+                    "<p class='broken-link-url'>{{link}}</p>" +
                     "<div class='broken-link-parents'>" +
                       "<p>Found in the following pages:</p>" +
                       "<ol>" +
@@ -160,7 +160,7 @@ window.addEventListener("load", function () {
     }
   });
 
-  var searchBar = document.getElementById("crawl-status");
+  var crawlStatusBar = document.getElementById("crawl-status");
   var stickPoint = form.offsetTop;
   var stuck = false;
 
@@ -168,15 +168,17 @@ window.addEventListener("load", function () {
     var offset = window.pageYOffset;
     if (!stuck && (offset >= stickPoint)) {
       stuck = true;
-      searchBar.style.top = '50px';
+      crawlStatusBar.style.top = '50px';
+      crawlStatusBar.style.zIndex = '100';
       if (navigator.userAgent.toLowerCase().indexOf('firefox') > -1) {
-        searchBar.style.position = 'sticky';
+        crawlStatusBar.style.position = 'sticky';
       } else {
-        searchBar.style.position = 'fixed';
+        crawlStatusBar.style.position = 'fixed';
       }
     } else if (stuck && (offset < stickPoint)) {
+      crawlStatusBar.style.zIndex = '97';
       stuck = false;
-      searchBar.style.position = 'static';
+      crawlStatusBar.style.position = 'static';
     }
   }
 

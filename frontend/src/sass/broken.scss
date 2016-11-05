@@ -34,6 +34,7 @@ input[type="text"] {
 /* –––––––––––––––––––––––––––––––––––––––––––––––––– */
 
 $max-width: 700px;
+$border-radius: 4px;
 
 $grey: #555;
 $light-grey: lighten($grey, 10%);
@@ -67,7 +68,7 @@ html {
   font-family: "Montserrat", sans-serif;
   font-weight: 700; 
   font-size: 3rem;
-  letter-spacing: 1px;
+  letter-spacing: 5px;
   text-align: center;
   margin-top: 0;
   margin-bottom: 2rem;
@@ -130,7 +131,7 @@ form {
   margin: -32px 0 24px 0;
   box-sizing: border-box;
   border: 1px solid $border-color;
-  border-radius: 4px;
+  border-radius: $border-radius;
   padding: 20px 20px 14px;
   animation: status-slide-in 0.8s;
 }
@@ -182,36 +183,87 @@ form {
 .broken-link-data {
   @extend %centered-main-column;
   z-index: 1;
-  margin-bottom: 20px;
-  margin-left: -4px;
+  /*margin-bottom: 20px;*/
   box-sizing: border-box;
-  border-left: 1px solid darken($border-color, 20%);
-  padding: 0 14px;
+  border: 1px solid $border-color;
+  border-bottom: none;
+  padding: 26px 40px;
   word-break: break-all;
   animation: slide-in 0.5s;
+  background: white;
+  position: relative;
+
+  &:first-of-type {
+    border-top-right-radius: $border-radius;
+  }
+
+  &:last-of-type {
+    border-bottom: 1px solid $border-color;
+    border-bottom-left-radius: $border-radius;
+    border-bottom-right-radius: $border-radius;
+    margin-bottom: 100px;
+  }
+
+  &.url, &.image, &.video {
+    &:before, &:after {
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+    &:before {
+      content: '';
+      width: 0;
+      height: 0;
+      border-style: solid;
+      border-width: 46px 46px 0 0;
+      border-color: transparent;
+    }
+    &:after {
+      content: '';
+      font-size: 8px;
+      margin: 4px;
+      color: white;
+      display: block;
+      height: 18px;
+      width: 18px;
+      background-size: 18px 18px;
+    }
+  }
+
+  &.url {
+    &:before {
+      border-color: #EB5627 transparent transparent transparent;
+    }
+    &:after {
+      background-image: url("../images/link.svg");
+    }
+  }
+
+  &.image {
+    &:before {
+      border-color: #01B091 transparent transparent transparent;
+    }
+    &:after {
+      background-image: url("../images/image.svg");
+    }
+  }
+
+  &.video {
+    &:before {
+      border-color: #FEC434 transparent transparent transparent;
+    }
+    &:after {
+      background-image: url("../images/videocamera.svg");
+    }
+  }
 
   .broken-link-url {
     font-weight: bold;
     margin-top: -2px;
     font-size: 14px;
     line-height: 1.2;
-
-    &.url {
-      &:before {
-        content: "[url] "
-      }
-    }
-    &.image {
-      &:before {
-        content: "[img] "
-      }
-    }
-    &.video {
-      &:before {
-        content: "[vid] "
-      }
-    }
   }
+  
   .broken-link-parents {
     font-size: 12px;
     p {
