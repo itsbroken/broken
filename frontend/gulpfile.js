@@ -10,17 +10,18 @@ var gulp = require('gulp'),
     browserSync = require('browser-sync'),
     changed = require('gulp-changed'),
     imagemin = require('gulp-imagemin'),
-    size = require('gulp-size');
+    size = require('gulp-size'),
+    exec = require('child_process').exec;
 
 gulp.task('styles', function() {
-  gulp.src('src/sass/**/*.scss')
+  return gulp.src('src/sass/**/*.scss')
     .pipe(sass().on('error', sass.logError))
     .pipe(autoprefixer('last 2 version', 'safari 5', 'ie 8', 'ie 9', 'opera 12.1', 'ios 6', 'android 4'))
     .pipe(gulp.dest('public/stylesheets'))
     .pipe(rename({suffix: '.min'}))
     .pipe(cleancss({compatibility: 'ie8'}))
-    .pipe(gulp.dest('public/stylesheets'));
-    // .pipe(browserSync.reload({stream:true}));
+    .pipe(gulp.dest('public/stylesheets'))
+    .pipe(browserSync.reload({stream:true}));
 });
 
 gulp.task('scripts', function() {
@@ -32,8 +33,8 @@ gulp.task('scripts', function() {
     .pipe(gulp.dest('public/javascripts'))
     .pipe(rename({suffix: '.min'}))
     .pipe(uglify())
-    .pipe(gulp.dest('public/javascripts'));
-    // .pipe(browserSync.reload({stream:true}));
+    .pipe(gulp.dest('public/javascripts'))
+    .pipe(browserSync.reload({stream:true}));
 });
 
 // Optimizes the images that exists
@@ -51,17 +52,22 @@ gulp.task('images', function () {
 });
 
 gulp.task('html', function() {
-  gulp.src('src/**/*.html')
+  return gulp.src('src/**/*.html')
     .pipe(gulp.dest('public/'))
 });
 
-gulp.task('browser-sync', ['styles', 'scripts'], function() {
-  browserSync({
-    server: {
-      baseDir: "public/",
-      injectChanges: true // this is new
-    }
+gulp.task('run-server', function() {
+  var proc = exec('python app.py');
+})
+
+gulp.task('browser-sync', ['run-server'], function() {
+  browserSync.init({
+    notify: false,
+    port: 8888,
+    proxy: {target: 'localhost:8888', ws: true}
   });
+
+  gulp.start('watch');
 });
 
 gulp.task('watch', function() {
@@ -76,7 +82,4 @@ gulp.task('watch', function() {
   gulp.watch('src/images/**/*', ['images', browserSync.reload]);
 });
 
-gulp.task('default', function() {
-    // gulp.start('styles', 'scripts', 'images', 'html', 'browser-sync', 'watch');
-    gulp.start('styles', 'scripts', 'images', 'html', 'watch');
-});
+gulp.task('default', ['browser-sync']);
