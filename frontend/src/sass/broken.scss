@@ -143,6 +143,14 @@ form {
   align-items: center;
 }
 
+#crawl-status-padding {
+  @extend %centered-info;
+  height: 57px;
+  background: none;
+  border: none;
+  animation: none;
+}
+
 #crawl-options {
   @extend %centered-info;
   border-color: $base-color;

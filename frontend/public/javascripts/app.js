@@ -168,6 +168,7 @@ window.addEventListener("load", function () {
     var offset = window.pageYOffset;
     if (!stuck && (offset >= stickPoint)) {
       stuck = true;
+      show("crawl-status-padding");
       crawlStatusBar.style.top = '50px';
       crawlStatusBar.style.zIndex = '100';
       if (navigator.userAgent.toLowerCase().indexOf('firefox') > -1) {
@@ -176,6 +177,7 @@ window.addEventListener("load", function () {
         crawlStatusBar.style.position = 'fixed';
       }
     } else if (stuck && (offset < stickPoint)) {
+      hide("crawl-status-padding");
       crawlStatusBar.style.zIndex = '97';
       stuck = false;
       crawlStatusBar.style.position = 'static';
