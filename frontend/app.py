@@ -157,9 +157,6 @@ class MainWebSocketHandler(websocket.WebSocketHandler):
             s.connect('tcp://127.0.0.1:5555')
             s.send_pyobj((self.index, None, None))
 
-    def check_origin(self, origin):  # TODO: check origin properly
-        return True
-
 
 if __name__ == "__main__":
     options.parse_command_line()
