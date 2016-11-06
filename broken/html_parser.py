@@ -69,7 +69,7 @@ def extract_img_src_links(found_links, url, response_body):
     """
     for found_img in BeautifulSoup(response_body,
                                    "html.parser",
-                                   parse_only=SoupStrainer(['img', 'embed'], src=True)):
+                                   parse_only=SoupStrainer('img', src=True)):
         img_src = found_img["src"].strip()
         found_links.add(Link(normalize_url(url, img_src), LinkType.image))
 

@@ -26,10 +26,26 @@ def is_text_content_type(raw_content_type):
 
 
 def is_image_content_type(raw_content_type):
+    """
+    Checks if the raw content type retrieved from the header is of
+    the appropriate type for Images
+
+    :param raw_content_type: raw content type header data
+    :return:
+    """
+
     return not raw_content_type or re.match(r'image/', raw_content_type)
 
 
 def is_video_content_type(raw_content_type):
+    """
+    Checks if the raw content type retrieved from the header is of
+    the appropriate type for Videos
+
+    :param raw_content_type: raw content type header data
+    :return:
+    """
+
     return not raw_content_type or re.match(r'video/', raw_content_type)
 
 
