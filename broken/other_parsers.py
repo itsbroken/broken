@@ -1,6 +1,8 @@
 # Various Parsers for html returned by various Content-Hosting-Sites
 
 import utils
+import io
+import hashlib
 from tornado import httpclient
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse
@@ -60,6 +62,15 @@ def assert_valid_photobucket_link(response):
 
     response_body = response.body
 
+    image_data = io.BytesIO(response_body).getvalue()
+
+    hasher = hashlib.md5()
+
+    hasher.update(image_data)
+
+    if hasher.hexdigest() == 'b663c32ab7ecad43166c7087f12a51c9':
+        raise httpclient.HTTPError(code=404)
+
 
 def is_tinypic_link(url):
     return 'tinypic' in urlparse(url).netloc.lower()
@@ -106,6 +117,13 @@ def assert_valid_generic_image_link(response):
 
 
 def assert_valid_image_link(base_url, response):
+    """
+    Determines if the supplied url involves an external image hosting site, and checks if the content is still valid.
+
+    :param base_url: The raw URL supplied with an image-related tag.
+    :param response: The Tornado HTTP Response Object from a fetch of the Link
+    :return:
+    """
 
     if is_imgur_link(base_url):
         assert_valid_imgur_link(response)
