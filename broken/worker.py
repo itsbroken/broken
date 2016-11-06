@@ -13,18 +13,14 @@ logging.basicConfig(stream=sys.stdout, level=logging.INFO,
 
 class Worker:
     def __init__(self, store):
-        """
-        Workers handle the actual sending and receiving of HTTP requests and responses.
-        """
+        """Workers handle the actual sending and receiving of HTTP requests and responses."""
         self.store = store
         self.running = True
         self.run()
 
     @gen.coroutine
     def run(self):
-        """
-        Called from the constructor. Waits a short moment before processing a url from the queue
-        """
+        """Called from the constructor. Waits a short moment before processing a url from the queue"""
         while self.running:
             yield gen.sleep(utils.get_random_delay())
             yield self.process_url()
@@ -50,6 +46,7 @@ class Worker:
             return
         check_images = self.store.opts["check_images"]
         check_videos = self.store.opts["check_videos"]
+
         # Extract links
         found_links = html_parser.extract_links(response.effective_url, response.body, check_images, check_videos)
 

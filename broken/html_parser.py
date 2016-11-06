@@ -32,15 +32,27 @@ def extract_links(url, response_body, include_images, include_videos):
 
 
 def extract_href_links(found_links, url, response_body):
+    """
+    Find href links in the given response_body and adds them to the
+    given found_links list.
+
+    :param found_links: List where the found links will be added to
+    :param url: URL where the response was retrieved
+    :param response_body: Response from the URL
+    """
     base_href = url
 
-    for base_link in BeautifulSoup(response_body, "html.parser", parse_only=SoupStrainer('base', href=True)):
+    for base_link in BeautifulSoup(response_body,
+                                   "html.parser",
+                                   parse_only=SoupStrainer('base', href=True)):
         base_href = base_link["href"].strip()
         if not urlparse(base_href).scheme:
             base_href = normalize_url(url, base_href)
         break
 
-    for found_link in BeautifulSoup(response_body, "html.parser", parse_only=SoupStrainer('a', href=True)):
+    for found_link in BeautifulSoup(response_body,
+                                    "html.parser",
+                                    parse_only=SoupStrainer('a', href=True)):
         a_href = found_link["href"].strip()
         if re.match(r'javascript:|mailto:|tel:', a_href):
             continue
@@ -48,14 +60,31 @@ def extract_href_links(found_links, url, response_body):
 
 
 def extract_img_src_links(found_links, url, response_body):
-    for found_img in BeautifulSoup(response_body, "html.parser", parse_only=SoupStrainer(['img', 'embed'], src=True)):
+    """
+    Find image source links.
+
+    :param found_links: List where the found image links will be added to
+    :param url: URL where the response was retrieved
+    :param response_body: Response from the URL
+    """
+    for found_img in BeautifulSoup(response_body,
+                                   "html.parser",
+                                   parse_only=SoupStrainer(['img', 'embed'], src=True)):
         img_src = found_img["src"].strip()
         found_links.add(Link(normalize_url(url, img_src), LinkType.image))
 
 
 def extract_video_src_links(found_links, url, response_body):
-    for found_embed in BeautifulSoup(response_body, "html.parser", parse_only=SoupStrainer(['video', 'embed', 'iframe'],
-                                                                                           src=True)):
+    """
+    Find video source links
+
+    :param found_links: List where the found video links will be added to
+    :param url: URL where the response was retrieved
+    :param response_body: Response from the URL
+    """
+    for found_embed in BeautifulSoup(response_body,
+                                     "html.parser",
+                                     parse_only=SoupStrainer(['video', 'embed', 'iframe'], src=True)):
         vid_src = found_embed["src"].strip()
         found_links.add(Link(normalize_url(url, vid_src), LinkType.video))
 

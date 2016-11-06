@@ -26,11 +26,9 @@ class Application(web.Application):
             (r"/websocket", MainWebSocketHandler),
         ]
         settings = dict(
-            # cookie_secret="__TODO:_GENERATE_YOUR_OWN_RANDOM_VALUE_HERE__",
             template_path=os.path.join(os.path.dirname(__file__), "../frontend/public/"),
             static_path=os.path.join(os.path.dirname(__file__), "../frontend/public/"),
             compress_response=True,
-            # xsrf_cookies=True,
         )
         super(Application, self).__init__(handlers, **settings)
 
@@ -49,6 +47,7 @@ class MainWebSocketHandler(websocket.WebSocketHandler):
 
     @staticmethod
     def parse_message(message):
+        """Parse user input"""
         try:
             data = json.loads(message)
         except json.JSONDecodeError:
@@ -96,6 +95,7 @@ class MainWebSocketHandler(websocket.WebSocketHandler):
 
     @gen.coroutine
     def on_message(self, message):
+        """Handles messages received from the websocket"""
         logging.info(message)
 
         parsed_message = MainWebSocketHandler.parse_message(message)
@@ -112,12 +112,13 @@ class MainWebSocketHandler(websocket.WebSocketHandler):
 
         global counter
         counter += 1
-        self.index = counter
+        self.index = counter  # Create an index for each message
 
         logging.info("#{} - New crawl request: {} {}".format(self.index, url, opts))
 
         ctx = zmq.Context.instance()
 
+        # Subscribe to the status socket to retrieve updates from the backend
         status_socket = ctx.socket(zmq.SUB)
         status_socket.connect('tcp://127.0.0.1:5556')
         status_socket.setsockopt_string(zmq.SUBSCRIBE, str(self.index))
@@ -125,11 +126,13 @@ class MainWebSocketHandler(websocket.WebSocketHandler):
         status_stream = zmqstream.ZMQStream(status_socket)
         status_stream.on_recv(self.handle_reply)
 
+        # Push to the command socket to tell the backend what to do
         s = ctx.socket(zmq.PUSH)
         s.connect('tcp://127.0.0.1:5555')
         s.send_pyobj((self.index, url, opts))
 
     def handle_reply(self, data):
+        """Handles published updates from the backend"""
         msg = ""
         status_update = json.loads(data[0].decode('utf-8').split(',', 1)[1])
         update_type = store.Status(status_update["type"])

@@ -8,6 +8,7 @@ class LinkType(Enum):
 
 
 class Link:
+    """Represents the various types of links"""
     def __init__(self, url, link_type=LinkType.regular):
         self.type = link_type
         self.url = url
