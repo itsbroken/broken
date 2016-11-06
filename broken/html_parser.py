@@ -72,6 +72,8 @@ def extract_img_src_links(found_links, url, response_body):
                                    "html.parser",
                                    parse_only=SoupStrainer('img', src=True)):
         img_src = found_img["src"].strip()
+        if not img_src:
+            continue
         found_links.add(Link(normalize_url(url, img_src), LinkType.image))
 
 
