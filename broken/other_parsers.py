@@ -20,31 +20,7 @@ def assert_valid_imgur_link(response):
     :return:
     """
 
-    response_body = response.body
-
     if urlparse(response.effective_url).path == '/removed.png':
-        raise httpclient.HTTPError(code=404)
-
-
-def is_imageshack_link(url):
-    return utils.is_domain_or_subdomain(url, 'imageshack.com') or utils.is_domain_or_subdomain(url, 'imageshack.us')
-
-
-def assert_valid_imageshack_link(response):
-    """
-    Asserts the accessibility of content hosted at ImageShack links. Accurate as of 6/11/2016.
-
-    :param response: The Tornado HTTP Response Object from a fetch of the Link
-    :return:
-    """
-
-    response_body = response.body
-
-    html_tree = BeautifulSoup(response_body, 'html.parser')
-
-    if html_tree.find('section', class_='four-oh-four') is not None:
-        raise httpclient.HTTPError(code=404)
-    elif html_tree.find('div', id='unavailable-lp') is not None:
         raise httpclient.HTTPError(code=404)
 
 
@@ -88,14 +64,13 @@ def assert_valid_tinypic_link(response):
         raise httpclient.HTTPError(code=404)
 
 
-def is_flickr_link(url):
-    return utils.is_domain_or_subdomain(url, 'staticflickr.com') or \
-           utils.is_domain_or_subdomain(url, 'yimg.com')
+def is_yimg_link(url):
+    return utils.is_domain_or_subdomain(url, 'yimg.com')
 
 
-def assert_valid_flickr_link(response):
+def assert_valid_yimg_link(response):
     """
-    Asserts the accessibility of content hosted at Flickr links. Accurate as of 6/11/2016.
+    Asserts the accessibility of content hosted at Yimg links. Accurate as of 6/11/2016.
 
     :param response: The Tornado HTTP Response Object from a fetch of the Link
     :return:
@@ -121,6 +96,10 @@ def assert_valid_image_link(response):
     """
     Determines if the supplied url involves an external image hosting site, and checks if the content is still valid.
 
+    Note:
+    1) Invalid Imageshack Links will be caught by the generic image checker.
+    2) Invalid Flickr Links will redirect to a invalid photo file on Yahoo Images.
+
     :param response: The Tornado HTTP Response Object from a fetch of the Link
     :return:
     """
@@ -129,17 +108,14 @@ def assert_valid_image_link(response):
     if is_imgur_link(base_url):
         assert_valid_imgur_link(response)
 
-    elif is_imageshack_link(base_url):
-        assert_valid_imageshack_link(response)
-
     elif is_photobucket_link(base_url):
         assert_valid_photobucket_link(response)
 
     elif is_tinypic_link(base_url):
         assert_valid_tinypic_link(response)
 
-    elif is_flickr_link(base_url):
-        assert_valid_flickr_link(response)
+    elif is_yimg_link(base_url):
+        assert_valid_yimg_link(response)
 
     else:
         assert_valid_generic_image_link(response)
