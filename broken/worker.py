@@ -95,10 +95,10 @@ class Worker:
                         yield from self.queue_additional_links(link.url, response)
 
                 elif link.type is LinkType.image:
-                    other_parsers.assert_valid_image_link(response)
+                    other_parsers.assert_valid_image_link(link.url, response)
 
                 elif link.type is LinkType.video:
-                    other_parsers.assert_valid_video_link(response)
+                    other_parsers.assert_valid_video_link(link.url, response)
 
             except httpclient.HTTPError as e:
                 if e.code in range(400, 500) and e.code not in [401]:
