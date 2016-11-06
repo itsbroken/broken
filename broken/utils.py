@@ -38,3 +38,13 @@ def is_valid_url(url):
         url = "http://" + url
     parsed = urlparse(url)
     return parsed.netloc
+
+
+def is_link_allowed(link_parsed, base_parsed, limit_to_url):
+    if limit_to_url:
+        return (link_parsed.netloc.lower() == base_parsed.netloc.lower() and
+                link_parsed.path == base_parsed.path and
+                link_parsed.params == base_parsed.params and
+                link_parsed.query == base_parsed.query)
+    else:
+        return link_parsed.netloc.lower() == base_parsed.netloc.lower()

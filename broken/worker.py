@@ -10,6 +10,8 @@ from link import LinkType
 logging.basicConfig(stream=sys.stdout, level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s')
 
+UA_STRING = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.87 Safari/537.36"
+
 
 class Worker:
     def __init__(self, store):
@@ -27,7 +29,7 @@ class Worker:
 
     @gen.coroutine
     def get_http_full_response(self, url):
-        response = yield httpclient.AsyncHTTPClient().fetch(url, method='GET')
+        response = yield httpclient.AsyncHTTPClient().fetch(url, method='GET', user_agent=UA_STRING)
 
         if response.effective_url not in self.store.crawled:
             return response
@@ -51,21 +53,6 @@ class Worker:
         found_links = html_parser.extract_links(response.effective_url, response.body, check_images, check_videos)
 
         for link in found_links:
-            if link.type is LinkType.regular:
-                link_parsed = urlparse(link.url)
-                base_parsed = self.store.base_url_parsed
-
-                if self.store.opts["limit_to_url"]:
-                    is_link_allowed = (link_parsed.netloc.lower() == base_parsed.netloc.lower() and
-                                       link_parsed.path == base_parsed.path and
-                                       link_parsed.params == base_parsed.params and
-                                       link_parsed.query == base_parsed.query)
-                else:
-                    is_link_allowed = link_parsed.netloc.lower() == base_parsed.netloc.lower()
-
-                if not is_link_allowed:
-                    continue
-
             self.store.parent_urls[link.url] = parent_url  # Keep track of the parent of the found link
             if link in self.store.broken_links:  # Add links that lead to this broken link
                 self.store.add_parent_for_broken_link(link, parent_url)
@@ -78,7 +65,8 @@ class Worker:
         Gets a URL from the queue and checks if it needs to be handled by special rules or crawled as per normal
         """
         link = yield self.store.queue.get()
-        if not urlparse(link.url).scheme:
+        link_parsed = urlparse(link.url)
+        if not link_parsed.scheme:
             link.url = 'http://' + link.url
 
         try:
@@ -90,30 +78,30 @@ class Worker:
 
             try:
                 response = yield self.get_http_full_response(link.url)
-
                 if not response:
                     return
 
-                effective_url = response.effective_url
+                is_initial_link = not self.store.base_url
 
-                if not self.store.base_url:
+                if is_initial_link:
+                    effective_url = response.effective_url
                     self.store.base_url = effective_url
                     self.store.base_url_parsed = urlparse(effective_url)
 
                 if link.type is LinkType.regular:
-
-                    yield from self.queue_additional_links(link.url, response)
+                    base_parsed = self.store.base_url_parsed
+                    limit_to_url = self.store.opts["limit_to_url"]
+                    if utils.is_link_allowed(link_parsed, base_parsed, limit_to_url) or is_initial_link:
+                        yield from self.queue_additional_links(link.url, response)
 
                 elif link.type is LinkType.image:
-
                     other_parsers.assert_valid_image_link(response)
 
                 elif link.type is LinkType.video:
-
                     other_parsers.assert_valid_video_link(response)
 
             except httpclient.HTTPError as e:
-                if e.code in range(400, 500):
+                if e.code in range(400, 500) and e.code not in [401]:
                     logging.info("#{} - {}, {}".format(self.store.index, e.code, link.url))
                     self.store.add_broken_link(link)
                 else:
@@ -133,4 +121,3 @@ class Worker:
                 self.store.queue.task_done()
             except ValueError:  # queue was aborted
                 pass
-
