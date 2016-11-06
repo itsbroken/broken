@@ -126,6 +126,8 @@ window.addEventListener("load", function () {
   form.addEventListener("submit", function (event) {
     event.preventDefault();
 
+    document.getElementById('url').blur();
+
     if (crawling) {
         return;
     }
@@ -169,18 +171,16 @@ window.addEventListener("load", function () {
     if (!stuck && (offset >= stickPoint)) {
       stuck = true;
       show("crawl-status-padding");
-      crawlStatusBar.style.top = '50px';
+      crawlStatusBar.style.top = '20px';
       crawlStatusBar.style.zIndex = '100';
-      if (navigator.userAgent.toLowerCase().indexOf('firefox') > -1) {
-        crawlStatusBar.style.position = 'sticky';
-      } else {
-        crawlStatusBar.style.position = 'fixed';
-      }
+      crawlStatusBar.style.position = 'fixed';
+      crawlStatusBar.style.margin = '0 auto';
     } else if (stuck && (offset < stickPoint)) {
       hide("crawl-status-padding");
-      crawlStatusBar.style.zIndex = '97';
       stuck = false;
+      crawlStatusBar.style.zIndex = '97';
       crawlStatusBar.style.position = 'static';
+      crawlStatusBar.style.margin = '';
     }
   }
 

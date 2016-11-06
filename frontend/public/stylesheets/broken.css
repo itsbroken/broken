@@ -20,7 +20,7 @@ p {
   margin-bottom: 0.6rem;
   letter-spacing: 0.2px; }
 
-input[type="text"] {
+input[type="url"] {
   height: 38px;
   padding: 6px 10px;
   /* The 6px vertically centers text on FF, ignored by Webkit */
@@ -29,7 +29,7 @@ input[type="text"] {
   border-radius: 4px;
   box-shadow: none;
   box-sizing: border-box; }
-  input[type="text"]:focus {
+  input[type="url"]:focus {
     border: 1px solid #41D3BD;
     outline: 0; }
 
@@ -121,7 +121,9 @@ form {
   display: flex;
   -webkit-box-align: center;
       -ms-flex-align: center;
-          align-items: center; }
+          align-items: center;
+  left: 0;
+  right: 0; }
 
 #crawl-status-padding {
   height: 57px;
