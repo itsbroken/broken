@@ -9,7 +9,7 @@ from urllib.parse import urlparse
 
 
 def is_imgur_link(url):
-    return urlparse(url).netloc.lower().endswith('.imgur.com')
+    return utils.is_domain_or_subdomain(url, 'imgur.com')
 
 
 def assert_valid_imgur_link(response):
@@ -27,7 +27,7 @@ def assert_valid_imgur_link(response):
 
 
 def is_imageshack_link(url):
-    return urlparse(url).netloc.lower().endswith('.imageshack.com')
+    return utils.is_domain_or_subdomain(url, 'imageshack.com')
 
 
 def assert_valid_imageshack_link(response):
@@ -49,7 +49,7 @@ def assert_valid_imageshack_link(response):
 
 
 def is_photobucket_link(url):
-    return urlparse(url).netloc.lower().endswith('.photobucket.com')
+    return utils.is_domain_or_subdomain(url, 'photobucket.com')
 
 
 def assert_valid_photobucket_link(response):
@@ -73,7 +73,7 @@ def assert_valid_photobucket_link(response):
 
 
 def is_tinypic_link(url):
-    return 'tinypic' in urlparse(url).netloc.lower()
+    return utils.is_domain_or_subdomain(url, 'tinypic.com')
 
 
 def assert_valid_tinypic_link(response):
@@ -89,8 +89,8 @@ def assert_valid_tinypic_link(response):
 
 
 def is_flickr_link(url):
-    return urlparse(url).netloc.lower().endswith('.staticflickr.com') or \
-           urlparse(url).netloc.lower().endswith('.yimg.com')
+    return utils.is_domain_or_subdomain(url, 'staticflickr.com') or \
+           utils.is_domain_or_subdomain(url, 'yimg.com')
 
 
 def assert_valid_flickr_link(response):
@@ -101,7 +101,7 @@ def assert_valid_flickr_link(response):
     :return:
     """
 
-    if 'photo_unavailable' in urlparse(response.effective_url).path:
+    if urlparse(response.effective_url).path.startswith('/pw/images/en-us/photo_unavailable_'):
         raise httpclient.HTTPError(code=404)
 
 
@@ -146,7 +146,7 @@ def assert_valid_image_link(response):
 
 
 def is_youtube_link(url):
-    return urlparse(url).netloc.lower().endswith('.youtube.com')
+    return utils.is_domain_or_subdomain(url, 'youtube.com')
 
 
 def assert_valid_youtube_link(response):

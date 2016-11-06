@@ -64,3 +64,9 @@ def is_link_allowed(link_parsed, base_parsed, limit_to_url):
                 link_parsed.query == base_parsed.query)
     else:
         return link_parsed.netloc.lower() == base_parsed.netloc.lower()
+
+
+def is_domain_or_subdomain(url, domain):
+    domain = domain.lower()
+    netloc = urlparse(url).netloc.lower()
+    return netloc == domain or netloc.endswith('.' + domain)
