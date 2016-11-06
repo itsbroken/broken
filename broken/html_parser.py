@@ -86,6 +86,9 @@ def extract_video_src_links(found_links, url, response_body):
                                      "html.parser",
                                      parse_only=SoupStrainer(['video', 'embed', 'iframe'], src=True)):
         vid_src = found_embed["src"].strip()
+
+        vid_src = normalize_youtube_link(vid_src)
+
         found_links.add(Link(normalize_url(url, vid_src), LinkType.video))
 
 
@@ -101,3 +104,16 @@ def normalize_url(parent_link, found_link):
     link_without_fragment = urldefrag(found_link)[0]  # Fragments refer to hash links
     absolute_link = urljoin(parent_link, link_without_fragment.strip())
     return quote(absolute_link, safe="%/:=&?~#+!$,;'@()*[]")  # http://bugs.python.org/issue918368
+
+
+def normalize_youtube_link(vid_src):
+    """
+    Does preprocessing on a Youtube Link if applicable
+
+    :param vid_src: Potential YouTube Link
+    :return: Normalized YouTube Link
+    """
+    if 'youtube' in vid_src:
+        if 'embed' in vid_src:
+            vid_src = vid_src.replace('/embed/', '/watch?v=')
+    return vid_src
