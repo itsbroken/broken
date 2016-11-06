@@ -9,7 +9,7 @@ from urllib.parse import urlparse
 
 
 def is_imgur_link(url):
-    return 'imgur' in urlparse(url).netloc.lower()
+    return urlparse(url).netloc.lower().endswith('.imgur.com')
 
 
 def assert_valid_imgur_link(response):
@@ -27,7 +27,7 @@ def assert_valid_imgur_link(response):
 
 
 def is_imageshack_link(url):
-    return 'imageshack' in urlparse(url).netloc.lower()
+    return urlparse(url).netloc.lower().endswith('.imageshack.com')
 
 
 def assert_valid_imageshack_link(response):
@@ -49,7 +49,7 @@ def assert_valid_imageshack_link(response):
 
 
 def is_photobucket_link(url):
-    return 'photobucket' in urlparse(url).netloc.lower()
+    return urlparse(url).netloc.lower().endswith('.photobucket.com')
 
 
 def assert_valid_photobucket_link(response):
@@ -89,7 +89,8 @@ def assert_valid_tinypic_link(response):
 
 
 def is_flickr_link(url):
-    return 'flickr' in urlparse(url).netloc.lower()
+    return urlparse(url).netloc.lower().endswith('.staticflickr.com') or \
+           urlparse(url).netloc.lower().endswith('.yimg.com')
 
 
 def assert_valid_flickr_link(response):
@@ -116,14 +117,14 @@ def assert_valid_generic_image_link(response):
         raise httpclient.HTTPError(code=404)
 
 
-def assert_valid_image_link(base_url, response):
+def assert_valid_image_link(response):
     """
     Determines if the supplied url involves an external image hosting site, and checks if the content is still valid.
 
-    :param base_url: The raw URL supplied with an image-related tag.
     :param response: The Tornado HTTP Response Object from a fetch of the Link
     :return:
     """
+    base_url = response.effective_url
 
     if is_imgur_link(base_url):
         assert_valid_imgur_link(response)
@@ -145,7 +146,7 @@ def assert_valid_image_link(base_url, response):
 
 
 def is_youtube_link(url):
-    return 'youtube' in urlparse(url).netloc.lower()
+    return urlparse(url).netloc.lower().endswith('.youtube.com')
 
 
 def assert_valid_youtube_link(response):
@@ -170,7 +171,15 @@ def assert_valid_generic_video_link(response):
         raise httpclient.HTTPError(code=404)
 
 
-def assert_valid_video_link(base_url, response):
+def assert_valid_video_link(response):
+    """
+    Determines if the supplied url involves an external video hosting site, and checks if the content is still valid.
+
+    :param response: The Tornado HTTP Response Object from a fetch of the Link
+    :return:
+    """
+
+    base_url = response.effective_url
 
     if is_youtube_link(base_url):
         assert_valid_youtube_link(response)
