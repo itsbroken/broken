@@ -4,7 +4,6 @@ var crawling = false;
 
 ws.onmessage = function (event) {
   data = JSON.parse(event.data);
-  console.log(data);
   if (data.response_type == "status") {
     if (data.status == "crawling") {
       show("crawl-status");
