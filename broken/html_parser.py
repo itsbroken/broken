@@ -1,6 +1,7 @@
 # Parses html to extract and return links, images and videos
 
 import re
+import other_parsers
 from bs4 import BeautifulSoup, SoupStrainer
 from urllib.parse import urlparse, urljoin, urldefrag, quote
 from link import Link, LinkType
@@ -113,7 +114,8 @@ def normalize_youtube_link(vid_src):
     :param vid_src: Potential YouTube Link
     :return: Normalized YouTube Link
     """
-    if 'youtube' in vid_src:
+
+    if other_parsers.is_youtube_link(vid_src):
         if 'embed' in vid_src:
             vid_src = vid_src.replace('/embed/', '/watch?v=')
     return vid_src
