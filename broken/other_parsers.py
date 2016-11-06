@@ -27,7 +27,7 @@ def assert_valid_imgur_link(response):
 
 
 def is_imageshack_link(url):
-    return utils.is_domain_or_subdomain(url, 'imageshack.com')
+    return utils.is_domain_or_subdomain(url, 'imageshack.com') or utils.is_domain_or_subdomain(url, 'imageshack.us')
 
 
 def assert_valid_imageshack_link(response):
