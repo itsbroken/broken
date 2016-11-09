@@ -34,6 +34,9 @@ Run `main.py` (backend) and `app.py` (frontend). App will run on http://localhos
 
 ### Frontend dev
 `npm install -g gulp`
+
 In the frontend folder:
+
 `npm install`
+
 `gulp`
