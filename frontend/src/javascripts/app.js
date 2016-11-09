@@ -121,11 +121,8 @@ function getOptions() {
 window.addEventListener("load", function () {
   var form = document.getElementById("url-form");
 
-  // Submit listener
-  form.addEventListener("submit", function (event) {
-    event.preventDefault();
-
-    document.getElementById('url').blur();
+  var submit = function() {
+    document.getElementById("url").blur();
 
     if (crawling) {
         return;
@@ -137,10 +134,25 @@ window.addEventListener("load", function () {
       "url": document.getElementById("url").value,
       "options": getOptions()
     }));
+  };
+
+  // Submit listener
+  form.addEventListener("submit", function (event) {
+    event.preventDefault();
+    submit();
+  });
+
+  var input = document.getElementById("url");
+
+  // Enter key listener
+  input.addEventListener("keydown", function(event) {
+    if (event.keyCode == 13) {
+      event.preventDefault();
+      submit();
+    }
   });
 
   // Input url listener
-  var input = document.getElementById("url");
   input.addEventListener('input', function() {
     url = input.value;
 
@@ -158,6 +170,26 @@ window.addEventListener("load", function () {
     } else {
       document.getElementById("accepted-urls-1-label").childNodes[2].textContent = "Root URL: " + rootUrl;
       document.getElementById("accepted-urls-2-label").childNodes[2].textContent = "Entire given URL: " + rootUrl + parser.pathname;
+    }
+  });
+
+  // Fire url listener event on load
+  // http://stackoverflow.com/questions/2856513/how-can-i-trigger-an-onchange-event-manually
+  if ("createEvent" in document) {
+    var evt = document.createEvent("HTMLEvents");
+    evt.initEvent("input", false, true);
+    input.dispatchEvent(evt);
+  } else {
+    input.fireEvent("input");
+  }
+
+  // If needed, add http:// to front on blur
+  // http://stackoverflow.com/questions/17946960/with-html5-url-input-validation-assume-url-starts-with-http
+  input.addEventListener('blur', function() {
+    url = input.value;
+    if (!url.trim().startsWith("http://") && !url.trim().startsWith("https://")) {
+      url = "http://" + url;
+      input.value = url;
     }
   });
 
