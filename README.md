@@ -20,7 +20,7 @@
 * [ZeroMQ](http://zeromq.org/) - Uses TCP connections to carry messages across different processes/threads, based on patterns such as Publisher-Subscriber and Push-Pull. Allows us to handle multiple crawls from different users which in turn spawn multiple worker threads to handle the crawls.
 * [WebSockets](https://en.wikipedia.org/wiki/WebSocket) - Provides a full-duplex communication channel over a single TCP connection. Used to send crawl requests from the user and to provide realtime updates of the crawl from the backend.
 
-## Usage
+## Development
 After cloning the repo, you can either open it in PyCharm or create a virtual environment (then activate it) and install the requirements (`pip install -r requirements.txt`).
 
 ### PyCharm
@@ -28,3 +28,12 @@ After cloning the repo, you can either open it in PyCharm or create a virtual en
 2. Create a virtualenv `File > Settings > Project Interpreter > Click on the plus icon` in the same directory, name it `venv`
 3. Open any of the source files and PyCharm will prompt you to install the requirements
 4. Right click on the `broken` package and `Mark Directory as` a source folder
+
+### Run the app
+Run `main.py` (backend) and `app.py` (frontend). App will run on http://localhost:8888.
+
+### Frontend dev
+`npm install -g gulp`
+In the frontend folder:
+`npm install`
+`gulp`
