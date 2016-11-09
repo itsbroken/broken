@@ -218,6 +218,9 @@ form {
     margin-top: -2px;
     font-size: 14px;
     line-height: 1.2; }
+    .broken-link-data .broken-link-url a {
+      color: inherit;
+      text-decoration: none; }
   .broken-link-data .broken-link-parents {
     font-size: 12px; }
     .broken-link-data .broken-link-parents p {

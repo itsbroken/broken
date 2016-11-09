@@ -34,7 +34,7 @@ function updateCrawlSummary(numCrawled, numBroken) {
 function updateBrokenLinkCard(link) {
   var brokenLinks = document.getElementById('broken-links');
   var template =  "<div id='broken-link-{{index}}' class='broken-link-data {{type}}'>" +
-                    "<p class='broken-link-url'>{{link}}</p>" +
+                    "<p class='broken-link-url'><a href='{{link}}'>{{link}}</a></p>" +
                     "<div class='broken-link-parents'>" +
                       "<p>Found in the following pages:</p>" +
                       "<ol>" +
