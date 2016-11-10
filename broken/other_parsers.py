@@ -117,8 +117,7 @@ def assert_valid_image_link(response):
     elif is_yimg_link(base_url):
         assert_valid_yimg_link(response)
 
-    else:
-        assert_valid_generic_image_link(response)
+    assert_valid_generic_image_link(response)
 
 
 def is_youtube_link(url):
